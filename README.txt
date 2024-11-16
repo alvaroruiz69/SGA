@@ -21,7 +21,7 @@ Paso 1: Clonar el Proyecto desde GitHub
 1. Abre una terminal en Visual Studio Code.
 2. Clona el repositorio desde GitHub en tu máquina local:
 
-   git clone https://github.com/alvaroruiz69/SGA_Project.git
+   git clone https://github.com/alvaroruiz69/SGA.git
 
 3. Cambia al directorio del proyecto:
 
@@ -69,9 +69,9 @@ Paso 4: Configurar la Conexión a la Base de Datos en Django
    DATABASES = {
        'default': {
            'ENGINE': 'django.db.backends.mysql',
-           'NAME': 'sga_db',  # Nombre de la base de datos
+           'NAME': 'sga_db', 
            'USER': 'root',
-           'PASSWORD': 'L8xZ54dUk4p',  # Contraseña de la base de datos
+           'PASSWORD': 'L8xZ54dUk4p', 
            'HOST': 'localhost',
            'PORT': '3306',
            'OPTIONS': {
@@ -82,7 +82,7 @@ Paso 4: Configurar la Conexión a la Base de Datos en Django
 
 Paso 5: Crear la Base de Datos (si no existe)
 
-Accede a phpMyAdmin en http://localhost/phpmyadmin y crea la base de datos llamada sga_db (u otro nombre que coincida con el valor en NAME en settings.py).
+Accede a phpMyAdmin en http://localhost/phpmyadmin y crea la base de datos llamada sga_db 
 
 ---
 
@@ -154,9 +154,8 @@ Subir Cambios al Repositorio en GitHub
 
 1. Subir los cambios al repositorio remoto en GitHub:
 
-   git push origin main
+   git push -u origin main
 
-Nota: Asegúrate de estar en la rama main u otra rama que estés utilizando en el proyecto.
 
 ---
 
@@ -196,7 +195,7 @@ Solución de Problemas
 ---
 
 Guía para iniciar aplicación Django (terminal):
-Iniciar zampp 
+Iniciar xampp 
 
 cd SGA_Project
 source venv/bin/activate
