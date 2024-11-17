@@ -154,7 +154,7 @@ Subir Cambios al Repositorio en GitHub
 
 1. Subir los cambios al repositorio remoto en GitHub:
 
-   git push -u origin main
+   git push
 
 
 ---

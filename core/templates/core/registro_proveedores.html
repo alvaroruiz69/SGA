@@ -1,82 +1,78 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Registro de Proveedores</h1>
+  <h1 class="text-3xl font-bold mb-6">Registro de Proveedores</h1>
 
-<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+  <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <h2 class="text-xl font-semibold mb-4">Nuevo Registro de Proveedor</h2>
     <form method="post" class="space-y-4">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
-                <input type="text" name="run" id="run" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre del Conductor</label>
-                <input type="text" name="nombre_conductor" id="nombre_conductor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="nombre_empresa" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
-                <input type="text" name="nombre_empresa" id="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
-                <input type="text" name="domicilio" id="domicilio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
-                <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
-                <input type="text" name="matricula" id="matricula" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="guia_despacho" class="block text-sm font-medium text-gray-700">Nº Guía de Despacho o Factura</label>
-                <input type="text" name="guia_despacho" id="guia_despacho" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="encargado_recepcion" class="block text-sm font-medium text-gray-700">Encargado de Recepción</label>
-                <input type="text" name="encargado_recepcion" id="encargado_recepcion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
+          <input type="text" name="run" id="run" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
         </div>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-            Registrar Proveedor
-        </button>
+        <div>
+          <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre y Apellidos del Conductor</label>
+          <input type="text" name="nombre_conductor" id="nombre_conductor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="nombre_empresa" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
+          <input type="text" name="nombre_empresa" id="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
+          <input type="text" name="domicilio" id="domicilio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
+          <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
+          <input type="text" name="matricula" id="matricula" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="guia_despacho" class="block text-sm font-medium text-gray-700">Nº Guía de Despacho o Factura</label>
+          <input type="text" name="guia_despacho" id="guia_despacho" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+        <div>
+          <label for="encargado_recepcion" class="block text-sm font-medium text-gray-700">Encargado de Recepción</label>
+          <input type="text" name="encargado_recepcion" id="encargado_recepcion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        </div>
+      </div class="flex justify-end">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Registrar Proveedor</button>
     </form>
-</div>
+  </div>
 
-<div class="bg-white p-6 rounded-lg shadow-md">
+  <div class="bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-semibold mb-4">Proveedores Actuales</h2>
     <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre del Conductor</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora de Ingreso</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for proveedor in proveedores %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.run }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_conductor }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_empresa }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.hora_ingreso|date:"d/m/Y H:i" }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <form method="post" action="{% url 'registrar_salida_proveedor' proveedor.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-                            Registrar Salida
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre del Conductor</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora de Ingreso</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for proveedor in proveedores %}
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.run }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_conductor }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_empresa }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.hora_ingreso|date:'d/m/Y H:i' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <form method="post" action="{% url 'registrar_salida_proveedor' proveedor.id %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">Registrar Salida</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-</div>
+  </div>
 {% endblock %}

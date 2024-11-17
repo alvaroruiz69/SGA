@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Reporte de Auditoría</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .filters {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte de Auditoría</h1>
+        <p>Generado el: {{ now|date:"d/m/Y H:i:s" }}</p>
+    </div>
+
+    <div class="filters">
+        <h3>Filtros Aplicados:</h3>
+        {% if filter_type and filter_value %}
+            <p>Tipo de Filtro: {{ filter_type|title }}</p>
+            <p>Valor: {{ filter_value }}</p>
+        {% endif %}
+        {% if start_date or end_date %}
+            <p>Período: 
+                {% if start_date %}Desde {{ start_date }}{% endif %}
+                {% if end_date %}Hasta {{ end_date }}{% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tipo</th>
+                <th>Usuario</th>
+                <th>Acción</th>
+                <th>Fecha y Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for accion in acciones %}
+            <tr>
+                <td>
+                    {% if 'visitante' in accion.accion|lower %}Visitante
+                    {% elif 'vehiculo' in accion.accion|lower %}Vehículo
+                    {% elif 'proveedor' in accion.accion|lower %}Proveedor
+                    {% else %}Sistema{% endif %}
+                </td>
+                <td>{{ accion.usuario.username }}</td>
+                <td>{{ accion.accion }}</td>
+                <td>{{ accion.fecha_hora|date:"d/m/Y H:i:s" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>Sistema de Gestión de Acceso - Reporte de Auditoría</p>
+    </div>
+</body>
+</html>

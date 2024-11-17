@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'sga_db',
         'USER': 'root',
-        'PASSWORD': 'L8xZ54dUk4p', 
+        'PASSWORD': 'L8xZ54dUk4p',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -113,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
