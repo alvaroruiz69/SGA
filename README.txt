@@ -1,6 +1,6 @@
 Proyecto Django: SGA_Project
 
-Este proyecto es una aplicación web desarrollada con Django y conectada a una base de datos MariaDB gestionada a través de XAMPP. 
+Este proyecto es una aplicación web desarrollada con Django y conectada a una base de datos MariaDB gestionada a través de XAMPP.
 El proyecto se desarrolla y gestiona en Visual Studio Code.
 
 ---
@@ -69,9 +69,9 @@ Paso 4: Configurar la Conexión a la Base de Datos en Django
    DATABASES = {
        'default': {
            'ENGINE': 'django.db.backends.mysql',
-           'NAME': 'sga_db', 
+           'NAME': 'sga_db',
            'USER': 'root',
-           'PASSWORD': 'L8xZ54dUk4p', 
+           'PASSWORD': 'contraseña de la BD',
            'HOST': 'localhost',
            'PORT': '3306',
            'OPTIONS': {
@@ -82,7 +82,7 @@ Paso 4: Configurar la Conexión a la Base de Datos en Django
 
 Paso 5: Crear la Base de Datos (si no existe)
 
-Accede a phpMyAdmin en http://localhost/phpmyadmin y crea la base de datos llamada sga_db 
+Accede a phpMyAdmin en http://localhost/phpmyadmin y crea la base de datos llamada sga_db
 
 ---
 
@@ -195,7 +195,7 @@ Solución de Problemas
 ---
 
 Guía para iniciar aplicación Django (terminal):
-Iniciar xampp 
+Iniciar xampp
 
 cd SGA_Project
 source venv/bin/activate

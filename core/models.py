@@ -1,20 +1,26 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class Visitante(models.Model):
-    run = models.CharField(max_length=12, unique=True)
+    # Removemos unique=True si estaba presente para permitir un nuevo ingreso
+    run = models.CharField(max_length=12)
     nombre = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
     numero_tarjeta = models.CharField(max_length=20)
     direccion = models.CharField(max_length=200)
-    motivo_visita = models.CharField(max_length=200)
-    observaciones = models.TextField(blank=True)
-    hora_ingreso = models.DateTimeField(auto_now_add=True)
+    motivo_visita = models.TextField()
+    observaciones = models.TextField(blank=True, null=True)
+    hora_entrada = models.DateTimeField(default=timezone.now)
     hora_salida = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellidos}"
+        return f"{self.nombre} {self.apellidos} - RUN: {self.run}"
+
+    class Meta:
+        ordering = ['-hora_entrada']
+
 
 class Vehiculo(models.Model):
     matricula = models.CharField(max_length=10, unique=True)
@@ -29,6 +35,7 @@ class Vehiculo(models.Model):
 
     def __str__(self):
         return f"{self.matricula} - {self.nombre_conductor}"
+
 
 class Proveedor(models.Model):
     run = models.CharField(max_length=12, unique=True)
@@ -45,6 +52,7 @@ class Proveedor(models.Model):
     def __str__(self):
         return f"{self.nombre_empresa} - {self.nombre_conductor}"
 
+
 class AuditoriaAccion(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     accion = models.CharField(max_length=200)
@@ -52,4 +60,3 @@ class AuditoriaAccion(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} - {self.accion}"
-    

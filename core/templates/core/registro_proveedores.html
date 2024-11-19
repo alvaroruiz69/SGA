@@ -63,7 +63,7 @@
             <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.run }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_conductor }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.nombre_empresa }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.hora_ingreso|date:'d/m/Y H:i' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ proveedor.hora_ingreso|date:'d-m-Y H:i:s' }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <form method="post" action="{% url 'registrar_salida_proveedor' proveedor.id %}">
                 {% csrf_token %}

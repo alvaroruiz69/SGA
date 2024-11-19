@@ -1,78 +1,179 @@
 {% extends 'core/base.html' %}
 
+{% block title %}Registro de Visitantes{% endblock %}
+
 {% block content %}
-<h1 class="text-3xl font-bold mb-6">Registro de Visitantes</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Registro de Visitantes</h1>
 
-<div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <h2 class="text-xl font-semibold mb-4">Nuevo Visitante</h2>
-    <form method="post" class="space-y-4">
+    <form method="post" id="visitorForm" class="max-w-lg mx-auto">
         {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
-                <input type="text" name="run" id="run" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-                <input type="text" name="nombre" id="nombre" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
-                <input type="text" name="apellidos" id="apellidos" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="numero_tarjeta" class="block text-sm font-medium text-gray-700">Número de Tarjeta</label>
-                <input type="text" name="numero_tarjeta" id="numero_tarjeta" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
-                <input type="text" name="direccion" id="direccion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
-            <div>
-                <label for="motivo_visita" class="block text-sm font-medium text-gray-700">Motivo de Visita</label>
-                <input type="text" name="motivo_visita" id="motivo_visita" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            </div>
+        <div class="mb-4">
+            <label for="run" class="block text-gray-700 text-sm font-bold mb-2">RUN:</label>
+            <input type="text" id="run" name="run" placeholder="12345678-9" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   pattern="\d{7,8}-[\d|kK]{1}" title="Formato: 12345678-9 o 1234567-8">
+            <p id="runError" class="text-red-500 text-xs italic hidden">RUN inválido. Formato correcto: 12345678-9</p>
         </div>
-        <div>
-            <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
-            <textarea name="observaciones" id="observaciones" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+
+        <div class="mb-4">
+            <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <p id="nombreError" class="text-red-500 text-xs italic hidden">El nombre solo debe contener letras</p>
         </div>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-            Registrar Visitante
-        </button>
+
+        <div class="mb-4">
+            <label for="apellidos" class="block text-gray-700 text-sm font-bold mb-2">Apellidos:</label>
+            <input type="text" id="apellidos" name="apellidos" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <p id="apellidosError" class="text-red-500 text-xs italic hidden">Los apellidos solo deben contener letras</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="numero_tarjeta" class="block text-gray-700 text-sm font-bold mb-2">Número de Tarjeta:</label>
+            <input type="text" id="numero_tarjeta" name="numero_tarjeta" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <p id="tarjetaError" class="text-red-500 text-xs italic hidden">El número de tarjeta solo debe contener números</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="direccion" class="block text-gray-700 text-sm font-bold mb-2">Dirección:</label>
+            <input type="text" id="direccion" name="direccion" required
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+
+        <div class="mb-4">
+            <label for="motivo_visita" class="block text-gray-700 text-sm font-bold mb-2">Motivo de Visita:</label>
+            <textarea id="motivo_visita" name="motivo_visita" required
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="observaciones" class="block text-gray-700 text-sm font-bold mb-2">Observaciones:</label>
+            <textarea id="observaciones" name="observaciones"
+                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Registrar Visitante
+            </button>
+        </div>
     </form>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Visitantes Actuales</h2>
+        <table class="min-w-full bg-white">
+            <thead>
+                <tr>
+                    <th class="py-2 px-4 border-b">RUN</th>
+                    <th class="py-2 px-4 border-b">Nombre</th>
+                    <th class="py-2 px-4 border-b">Apellidos</th>
+                    <th class="py-2 px-4 border-b">Número de Tarjeta</th>
+                    <th class="py-2 px-4 border-b">Hora de Entrada</th>
+                    <th class="py-2 px-4 border-b">Hora de Salida</th>
+                    <th class="py-2 px-4 border-b">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visitante in visitantes %}
+                <tr>
+                    <td class="py-2 px-4 border-b">{{ visitante.run }}</td>
+                    <td class="py-2 px-4 border-b">{{ visitante.nombre }}</td>
+                    <td class="py-2 px-4 border-b">{{ visitante.apellidos }}</td>
+                    <td class="py-2 px-4 border-b">{{ visitante.numero_tarjeta }}</td>
+                    <td class="py-2 px-4 border-b">{{ visitante.hora_entrada|date:"d-m-Y H:i:s" }}</td>
+                    <td class="py-2 px-4 border-b">
+                        {% if visitante.hora_salida %}
+                            {{ visitante.hora_salida|date:"d-m-Y H:i:s" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-4 border-b">
+                        <form method="post" action="{% url 'registrar_salida_visitante' visitante.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">
+                                Registrar Salida
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-xl font-semibold mb-4">Visitantes Actuales</h2>
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora de Ingreso</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for visitante in visitantes %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ visitante.run }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ visitante.nombre }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ visitante.apellidos }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ visitante.hora_ingreso|date:"d/m/Y H:i" }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <form method="post" action="{% url 'registrar_salida_visitante' visitante.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-                            Registrar Salida
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const runInput = document.getElementById('run');
+    const nombreInput = document.getElementById('nombre');
+    const apellidosInput = document.getElementById('apellidos');
+    const tarjetaInput = document.getElementById('numero_tarjeta');
+    const direccionInput = document.getElementById('direccion');
+
+    runInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^0-9kK]/g, '');
+        if (value.length > 7) {
+            value = value.slice(0, -1) + '-' + value.slice(-1);
+        }
+        e.target.value = value;
+    });
+
+    runInput.addEventListener('blur', function() {
+        if (this.value.length > 0 && !this.checkValidity()) {
+            document.getElementById('runError').classList.remove('hidden');
+        } else {
+            document.getElementById('runError').classList.add('hidden');
+            fetchVisitorData(this.value);
+        }
+    });
+
+    nombreInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        document.getElementById('nombreError').classList.toggle('hidden', e.target.value === '' || /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(e.target.value));
+    });
+
+    apellidosInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        document.getElementById('apellidosError').classList.toggle('hidden', e.target.value === '' || /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(e.target.value));
+    });
+
+    tarjetaInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+        document.getElementById('tarjetaError').classList.toggle('hidden', e.target.value === '' || /^\d+$/.test(e.target.value));
+    });
+
+    function fetchVisitorData(run) {
+        fetch(`/api/visitor-data/?run=${run}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    nombreInput.value = data.nombre;
+                    apellidosInput.value = data.apellidos;
+                    direccionInput.value = data.direccion;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    document.getElementById('visitorForm').addEventListener('submit', function(e) {
+        const inputs = [runInput, nombreInput, apellidosInput, tarjetaInput];
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                isValid = false;
+                document.getElementById(`${input.id}Error`).classList.remove('hidden');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 {% endblock %}

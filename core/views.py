@@ -3,12 +3,14 @@ Este módulo contiene las vistas para manejar las funcionalidades de la aplicaci
 """
 # pylint: disable=import-error
 
+import re
+
 import weasyprint
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -41,25 +43,70 @@ def home(request):
 
 
 @login_required
+def get_visitor_data(request):
+    """
+    Maneja el registro de salida visitantes.
+    """
+    run = request.GET.get('run')
+    visitor = Visitante.objects.filter(
+        run=run).order_by('-hora_entrada').first()
+    if visitor:
+        return JsonResponse({
+            'exists': True,
+            'nombre': visitor.nombre,
+            'apellidos': visitor.apellidos,
+            'direccion': visitor.direccion
+        })
+    else:
+        return JsonResponse({'exists': False})
+
+
+@login_required
 def registro_visitantes(request):
     """
     Maneja el registro de visitantes.
     """
-    if request.method == "POST":
+    if request.method == 'POST':
+        # Validación del servidor
+        run = request.POST.get('run')
+        nombre = request.POST.get('nombre')
+        apellidos = request.POST.get('apellidos')
+        numero_tarjeta = request.POST.get('numero_tarjeta')
+
+        if not run or not nombre or not apellidos or not numero_tarjeta:
+            messages.error(request, 'Todos los campos son obligatorios.')
+            return redirect('registro_visitantes')
+
+        if not re.match(r'^\d{7,8}-[\d|kK]{1}$', run):
+            messages.error(request, 'Formato de RUN inválido.')
+            return redirect('registro_visitantes')
+
+        if not nombre.replace(' ', '').isalpha() or not apellidos.replace(' ', '').isalpha():
+            messages.error(
+                request, 'El nombre y apellidos deben contener solo letras.')
+            return redirect('registro_visitantes')
+
+        if not numero_tarjeta.isdigit():
+            messages.error(
+                request, 'El número de tarjeta debe contener solo números.')
+            return redirect('registro_visitantes')
+
+        # Crear nuevo visitante
         Visitante.objects.create(
-            run=request.POST["run"],
-            nombre=request.POST["nombre"],
-            apellidos=request.POST["apellidos"],
-            numero_tarjeta=request.POST["numero_tarjeta"],
-            direccion=request.POST["direccion"],
-            motivo_visita=request.POST["motivo_visita"],
-            observaciones=request.POST["observaciones"],
+            run=run,
+            nombre=nombre,
+            apellidos=apellidos,
+            numero_tarjeta=numero_tarjeta,
+            direccion=request.POST.get('direccion'),
+            motivo_visita=request.POST.get('motivo_visita'),
+            observaciones=request.POST.get('observaciones'),
+            hora_entrada=timezone.now()
         )
-        messages.success(request, "Visitante registrado con éxito")
-        return redirect("registro_visitantes")
+        messages.success(request, 'Visitante registrado con éxito')
+        return redirect('registro_visitantes')
 
     visitantes = Visitante.objects.filter(hora_salida__isnull=True)
-    return render(request, "core/registro_visitantes.html", {"visitantes": visitantes})
+    return render(request, 'core/registro_visitantes.html', {'visitantes': visitantes})
 
 
 @login_required
@@ -124,8 +171,8 @@ def registrar_salida_visitante(request, visitante_id):
     visitante = Visitante.objects.get(id=visitante_id)
     visitante.hora_salida = timezone.now()
     visitante.save()
-    messages.success(request, "Salida de visitante registrada con éxito")
-    return redirect("registro_visitantes")
+    messages.success(request, 'Salida de visitante registrada con éxito')
+    return redirect('registro_visitantes')
 
 
 @login_required
