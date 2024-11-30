@@ -3,106 +3,103 @@
 {% block title %}Registro de Visitantes{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Registro de Visitantes</h1>
+<div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Registro de Visitantes</h1>
 
-    <form method="post" id="visitorForm" class="max-w-lg mx-auto">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="run" class="block text-gray-700 text-sm font-bold mb-2">RUN:</label>
-            <input type="text" id="run" name="run" placeholder="12345678-9" required
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                   pattern="\d{7,8}-[\d|kK]{1}" title="Formato: 12345678-9 o 1234567-8">
-            <p id="runError" class="text-red-500 text-xs italic hidden">RUN inválido. Formato correcto: 12345678-9</p>
+        <form method="post" id="visitorForm" class="space-y-6">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="run" class="block text-sm font-medium text-gray-700">RUN:</label>
+                    <input type="text" id="run" name="run" placeholder="12345678-9" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                           pattern="\d{7,8}-[\d|kK]{1}" title="Formato: 12345678-9 o 1234567-8">
+                    <p id="runError" class="text-red-500 text-xs italic hidden">RUN inválido. Formato correcto: 12345678-9</p>
+                </div>
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <p id="nombreError" class="text-red-500 text-xs italic hidden">El nombre solo debe contener letras</p>
+                </div>
+                <div>
+                    <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos:</label>
+                    <input type="text" id="apellidos" name="apellidos" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <p id="apellidosError" class="text-red-500 text-xs italic hidden">Los apellidos solo deben contener letras</p>
+                </div>
+                <div>
+                    <label for="numero_tarjeta" class="block text-sm font-medium text-gray-700">Número de Tarjeta:</label>
+                    <input type="text" id="numero_tarjeta" name="numero_tarjeta" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <p id="tarjetaError" class="text-red-500 text-xs italic hidden">El número de tarjeta solo debe contener números</p>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección:</label>
+                    <input type="text" id="direccion" name="direccion" required
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                </div>
+                <div>
+                    <label for="motivo_visita" class="block text-sm font-medium text-gray-700">Motivo de Visita:</label>
+                    <textarea id="motivo_visita" name="motivo_visita" required
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                </div>
+                <div>
+                    <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones:</label>
+                    <textarea id="observaciones" name="observaciones"
+                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300">
+                    Registrar Visitante
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Visitantes Actuales</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número de Tarjeta</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora de Entrada</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for visitante in visitantes %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ visitante.run }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.nombre }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.apellidos }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.numero_tarjeta }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.hora_entrada|date:"d-m-Y H:i:s" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <form method="post" action="{% url 'registrar_salida_visitante' visitante.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-300">
+                                    Registrar Salida
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No hay visitantes registrados actualmente.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-
-        <div class="mb-4">
-            <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <p id="nombreError" class="text-red-500 text-xs italic hidden">El nombre solo debe contener letras</p>
-        </div>
-
-        <div class="mb-4">
-            <label for="apellidos" class="block text-gray-700 text-sm font-bold mb-2">Apellidos:</label>
-            <input type="text" id="apellidos" name="apellidos" required
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <p id="apellidosError" class="text-red-500 text-xs italic hidden">Los apellidos solo deben contener letras</p>
-        </div>
-
-        <div class="mb-4">
-            <label for="numero_tarjeta" class="block text-gray-700 text-sm font-bold mb-2">Número de Tarjeta:</label>
-            <input type="text" id="numero_tarjeta" name="numero_tarjeta" required
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <p id="tarjetaError" class="text-red-500 text-xs italic hidden">El número de tarjeta solo debe contener números</p>
-        </div>
-
-        <div class="mb-4">
-            <label for="direccion" class="block text-gray-700 text-sm font-bold mb-2">Dirección:</label>
-            <input type="text" id="direccion" name="direccion" required
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-
-        <div class="mb-4">
-            <label for="motivo_visita" class="block text-gray-700 text-sm font-bold mb-2">Motivo de Visita:</label>
-            <textarea id="motivo_visita" name="motivo_visita" required
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div>
-
-        <div class="mb-4">
-            <label for="observaciones" class="block text-gray-700 text-sm font-bold mb-2">Observaciones:</label>
-            <textarea id="observaciones" name="observaciones"
-                      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div>
-
-        <div class="flex items-center justify-between">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Registrar Visitante
-            </button>
-        </div>
-    </form>
-
-    <div class="mt-8">
-        <h2 class="text-2xl font-bold mb-4">Visitantes Actuales</h2>
-        <table class="min-w-full bg-white">
-            <thead>
-                <tr>
-                    <th class="py-2 px-4 border-b">RUN</th>
-                    <th class="py-2 px-4 border-b">Nombre</th>
-                    <th class="py-2 px-4 border-b">Apellidos</th>
-                    <th class="py-2 px-4 border-b">Número de Tarjeta</th>
-                    <th class="py-2 px-4 border-b">Hora de Entrada</th>
-                    <th class="py-2 px-4 border-b">Hora de Salida</th>
-                    <th class="py-2 px-4 border-b">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for visitante in visitantes %}
-                <tr>
-                    <td class="py-2 px-4 border-b">{{ visitante.run }}</td>
-                    <td class="py-2 px-4 border-b">{{ visitante.nombre }}</td>
-                    <td class="py-2 px-4 border-b">{{ visitante.apellidos }}</td>
-                    <td class="py-2 px-4 border-b">{{ visitante.numero_tarjeta }}</td>
-                    <td class="py-2 px-4 border-b">{{ visitante.hora_entrada|date:"d-m-Y H:i:s" }}</td>
-                    <td class="py-2 px-4 border-b">
-                        {% if visitante.hora_salida %}
-                            {{ visitante.hora_salida|date:"d-m-Y H:i:s" }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td class="py-2 px-4 border-b">
-                        <form method="post" action="{% url 'registrar_salida_visitante' visitante.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded">
-                                Registrar Salida
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 </div>
 
