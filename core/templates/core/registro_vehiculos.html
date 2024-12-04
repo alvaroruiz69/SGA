@@ -14,19 +14,23 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
-            <input type="text" name="matricula" id="matricula" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <input type="text" name="matricula" id="matricula" required maxlength="6" pattern="^[A-Za-z0-9]+$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo contener letras y números.</p>
           </div>
           <div>
             <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
-            <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required pattern="[a-zA-Z]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="tipoVehiculoError" class="text-red-500 text-xs italic hidden">Ingrese solo letras.</p>
           </div>
           <div>
             <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre del Conductor</label>
-            <input type="text" name="nombre_conductor" id="nombre_conductor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <input type="text" name="nombre_conductor" id="nombre_conductor" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="nombreConductorError" class="text-red-500 text-xs italic hidden">Ingrese solo letras y números.</p>
           </div>
           <div>
             <label for="kilometraje_salida" class="block text-sm font-medium text-gray-700">Kilometraje de Salida</label>
             <input type="number" name="kilometraje_salida" id="kilometraje_salida" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="kilometrajeSalidaError" class="text-red-500 text-xs italic hidden">Ingrese solo números.</p>
           </div>
           <div>
             <label for="destino" class="block text-sm font-medium text-gray-700">Destino</label>
@@ -35,10 +39,11 @@
           <div>
             <label for="numero_personas" class="block text-sm font-medium text-gray-700">Número de Personas</label>
             <input type="number" name="numero_personas" id="numero_personas" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="numeroPersonasError" class="text-red-500 text-xs italic hidden">Ingrese solo números.</p>
           </div>
         </div>
         <div class="flex justify-end">
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300">Registrar Salida de Vehículo</button>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-300">Registrar Vehículo</button>
         </div>
       </form>
     </div>
@@ -48,7 +53,7 @@
     <div class="p-6">
       <h2 class="text-xl font-semibold mb-4 text-gray-800">Vehículos Actuales</h2>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
@@ -87,4 +92,74 @@
       </div>
     </div>
   </div>
+  <script>
+    const matriculaInput = document.getElementById('matricula')
+    const tipoVehiculoInput = document.getElementById('tipo_vehiculo')
+    const nombreConductorInput = document.getElementById('nombre_conductor')
+    const kilometrajeSalidaInput = document.getElementById('kilometraje_salida')
+    const numeroPersonasInput = document.getElementById('numero_personas')
+    
+    matriculaInput.addEventListener('input', () => {
+      if (matriculaInput.value.length > 6 || !/^[A-Za-z0-9]+$/.test(matriculaInput.value)) {
+        document.getElementById('matriculaError').classList.remove('hidden')
+      } else {
+        document.getElementById('matriculaError').classList.add('hidden')
+      }
+    })
+    // Nueva función para buscar datos del vehículo
+    function fetchVehicleData(matricula) {
+      fetch(`/api/vehicle-data/?matricula=${matricula}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.exists) {
+            tipoVehiculoInput.value = data.tipo_vehiculo
+            kilometrajeSalidaInput.value = data.kilometraje_salida // Último kilometraje de llegada
+            destinoInput.value = data.destino
+            numeroPersonasInput.value = data.numero_personas
+          } else {
+            console.error('La matrícula no está registrada.')
+          }
+        })
+        .catch((error) => console.error('Error:', error))
+    }
+    
+    // Evento para buscar datos cuando se pierde el enfoque
+    matriculaInput.addEventListener('blur', function () {
+      const matricula = this.value
+      if (matricula) {
+        fetchVehicleData(matricula)
+      }
+    })
+    tipoVehiculoInput.addEventListener('input', () => {
+      if (!/^[a-zA-Z]+$/.test(tipoVehiculoInput.value)) {
+        document.getElementById('tipoVehiculoError').classList.remove('hidden')
+      } else {
+        document.getElementById('tipoVehiculoError').classList.add('hidden')
+      }
+    })
+    
+    nombreConductorInput.addEventListener('input', () => {
+      if (!/^[a-zA-Z0-9\s]+$/.test(nombreConductorInput.value)) {
+        document.getElementById('nombreConductorError').classList.remove('hidden')
+      } else {
+        document.getElementById('nombreConductorError').classList.add('hidden')
+      }
+    })
+    
+    kilometrajeSalidaInput.addEventListener('input', () => {
+      if (isNaN(kilometrajeSalidaInput.value)) {
+        document.getElementById('kilometrajeSalidaError').classList.remove('hidden')
+      } else {
+        document.getElementById('kilometrajeSalidaError').classList.add('hidden')
+      }
+    })
+    
+    numeroPersonasInput.addEventListener('input', () => {
+      if (isNaN(numeroPersonasInput.value)) {
+        document.getElementById('numeroPersonasError').classList.remove('hidden')
+      } else {
+        document.getElementById('numeroPersonasError').classList.add('hidden')
+      }
+    })
+  </script>
 {% endblock %}

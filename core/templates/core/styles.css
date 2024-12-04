@@ -1,0 +1,38 @@
+body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Estilo para el scrollbar personalizado */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  /* Animaciones para transiciones suaves */
+  .transition-all {
+    transition: all 0.3s ease;
+  }
+
+  /* Estilos para mensajes de alerta */
+  .alert {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .alert.fade-out {
+    opacity: 0;
+  }

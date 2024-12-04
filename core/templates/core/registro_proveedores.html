@@ -1,48 +1,61 @@
 {% extends 'core/base.html' %}
 
-{% block content %}
-  <h1 class="text-3xl font-bold mb-6">Registro de Proveedores</h1>
+{% block title %}
+  Registro de Proveedores
+{% endblock %}
 
-  <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <h2 class="text-xl font-semibold mb-4">Nuevo Registro de Proveedor</h2>
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
-          <input type="text" name="run" id="run" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+{% block content %}
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="p-6">
+      <h1 class="text-2xl font-bold mb-6 text-gray-800">Registro de Proveedores</h1>
+      <form method="post" id="proveedorForm" class="space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
+            <input type="text" name="run" id="run" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="runError" class="text-red-500 text-xs italic hidden">RUN inválido. Formato correcto: 12345678-9</p>
+          </div>
+          <div>
+            <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre y Apellidos del Conductor</label>
+            <input type="text" name="nombre_conductor" id="nombre_conductor" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="nombreConductorError" class="text-red-500 text-xs italic hidden">Ingrese solo letras.</p>
+          </div>
+          <div>
+            <label for="nombre_empresa" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
+            <input type="text" name="nombre_empresa" id="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="empresaError" class="text-red-500 text-xs italic hidden">Ingrese solo letras.</p>
+          </div>
+          <div>
+            <label for="domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
+            <input type="text" name="domicilio" id="domicilio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+          <div>
+            <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
+            <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="tipoVehiculoError" class="text-red-500 text-xs italic hidden">Ingrese solo letras.</p>
+          </div>
+          <div>
+            <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
+            <input type="text" name="matricula" id="matricula" required maxlength="6" pattern="^[A-Za-z0-9]+$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo letras y números.</p>
+          </div>
+          <div>
+            <label for="guia_despacho" class="block text-sm font-medium text-gray-700">Nº Guía de Des pacho o Factura</label>
+            <input type="text" name="guia_despacho" id="guia_despacho" required pattern="\d+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="guiaError" class="text-red-500 text-xs italic hidden">Ingrese solo números.</p>
+          </div>
+          <div>
+            <label for="encargado_recepcion" class="block text-sm font-medium text-gray-700">Encargado de Recepción</label>
+            <input type="text" name="encargado_recepcion" id="encargado_recepcion" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="encargadoError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
+          </div>
         </div>
-        <div>
-          <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre y Apellidos del Conductor</label>
-          <input type="text" name="nombre_conductor" id="nombre_conductor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+        <div class="flex justify-end">
+          <button type="submit" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded">Registrar Proveedor</button>
         </div>
-        <div>
-          <label for="nombre_empresa" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
-          <input type="text" name="nombre_empresa" id="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-        <div>
-          <label for="domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
-          <input type="text" name="domicilio" id="domicilio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-        <div>
-          <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
-          <input type="text" name="tipo_vehiculo" id="tipo_vehiculo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-        <div>
-          <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
-          <input type="text" name="matricula" id="matricula" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-        <div>
-          <label for="guia_despacho" class="block text-sm font-medium text-gray-700">Nº Guía de Despacho o Factura</label>
-          <input type="text" name="guia_despacho" id="guia_despacho" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-        <div>
-          <label for="encargado_recepcion" class="block text-sm font-medium text-gray-700">Encargado de Recepción</label>
-          <input type="text" name="encargado_recepcion" id="encargado_recepcion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-        </div>
-      </div class="flex justify-end">
-      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Registrar Proveedor</button>
-    </form>
+      </form>
+    </div>
   </div>
 
   <div class="bg-white p-6 rounded-lg shadow-md">
@@ -75,4 +88,112 @@
       </tbody>
     </table>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const runInput = document.getElementById('run')
+      const nombreConductorInput = document.getElementById('nombre_conductor')
+      const nombreEmpresaInput = document.getElementById('nombre_empresa')
+      const domicilioInput = document.getElementById('domicilio')
+      const tipoVehiculoInput = document.getElementById('tipo_vehiculo')
+      const matriculaInput = document.getElementById('matricula')
+    
+      // Validar RUN y limitar a 9 caracteres
+      runInput.addEventListener('input', function () {
+        const value = this.value.replace(/[^0-9kK]/g, '') // Solo dígitos y 'K'
+        this.value = value.slice(0, 9) // Limitar a 9 caracteres
+      })
+    
+      // Validar RUN, calcular dígito verificador y buscar en la base de datos
+      runInput.addEventListener('blur', function () {
+        const runRaw = this.value.replace(/[^0-9kK]/g, '') // Limpiar caracteres no válidos
+    
+        // Verificar longitud
+        if (runRaw.length < 7 || runRaw.length > 9) {
+          document.getElementById('runError').classList.remove('hidden')
+          return
+        }
+    
+        const cuerpo = runRaw.slice(0, -1)
+        const dvIngresado = runRaw.slice(-1).toUpperCase()
+        const dvCalculado = calcularDV(cuerpo)
+    
+        // Verificar dígito verificador
+        if (dvIngresado !== dvCalculado) {
+          document.getElementById('runError').classList.remove('hidden')
+        } else {
+          document.getElementById('runError').classList.add('hidden')
+          this.value = `${cuerpo}-${dvCalculado}` // Formatear RUN con guion
+          fetchProviderData(this.value) // Buscar datos del proveedor
+        }
+      })
+    
+      // Función para calcular el dígito verificador
+      function calcularDV(run) {
+        let suma = 0
+        let factor = 2
+    
+        for (let i = run.length - 1; i >= 0; i--) {
+          suma += parseInt(run[i]) * factor
+          factor = factor === 7 ? 2 : factor + 1
+        }
+    
+        const resto = 11 - (suma % 11)
+        if (resto === 11) return '0'
+        if (resto === 10) return 'K'
+        return resto.toString()
+      }
+    
+      // Buscar datos del proveedor si el RUN ya existe
+      function fetchProviderData(run) {
+        fetch(`/api/provider-data/?run=${run}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.exists) {
+              // Asigna solo los datos requeridos (sin incluir guía de despacho y encargado)
+              nombreConductorInput.value = data.nombre_conductor
+              nombreEmpresaInput.value = data.nombre_empresa
+              domicilioInput.value = data.domicilio
+              tipoVehiculoInput.value = data.tipo_vehiculo
+              matriculaInput.value = data.matricula
+            } else {
+              console.warn('El RUN no está registrado.')
+              // Limpiar los campos en caso de que no exista
+              nombreConductorInput.value = ''
+              nombreEmpresaInput.value = ''
+              domicilioInput.value = ''
+              tipoVehiculoInput.value = ''
+              matriculaInput.value = ''
+            }
+          })
+          .catch((error) => console.error('Error al buscar datos del proveedor:', error))
+      }
+    
+      // Validar campos restantes
+      nombreConductorInput.addEventListener('input', function () {
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
+        document.getElementById('nombreConductorError').classList.toggle('hidden', regex.test(this.value))
+      })
+    
+      nombreEmpresaInput.addEventListener('input', function () {
+        const regex = /^[a-zA-Z0-9\s]+$/
+        document.getElementById('empresaError').classList.toggle('hidden', regex.test(this.value))
+      })
+    
+      domicilioInput.addEventListener('input', function () {
+        const regex = /^[a-zA-Z0-9\s]+$/
+        document.getElementById('domicilioError').classList.toggle('hidden', regex.test(this.value))
+      })
+    
+      tipoVehiculoInput.addEventListener('input', function () {
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/
+        document.getElementById('tipoVehiculoError').classList.toggle('hidden', regex.test(this.value))
+      })
+    
+      matriculaInput.addEventListener('input', function () {
+        const regex = /^[A-Za-z0-9]+$/
+        document.getElementById('matriculaError').classList.toggle('hidden', regex.test(this.value) && this.value.length <= 6)
+      })
+    })
+  </script>
 {% endblock %}

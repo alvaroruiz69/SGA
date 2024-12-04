@@ -11,42 +11,42 @@
             {% csrf_token %}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="run" class="block text-sm font-medium text-gray-700">RUN:</label>
+                    <label for="run" class="block text-sm font-medium text-gray-700">RUN</label>
                     <input type="text" id="run" name="run" placeholder="12345678-9" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                            pattern="\d{7,8}-[\d|kK]{1}" title="Formato: 12345678-9 o 1234567-8">
                     <p id="runError" class="text-red-500 text-xs italic hidden">RUN inválido. Formato correcto: 12345678-9</p>
                 </div>
                 <div>
-                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre:</label>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
                     <input type="text" id="nombre" name="nombre" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="nombreError" class="text-red-500 text-xs italic hidden">El nombre solo debe contener letras</p>
                 </div>
                 <div>
-                    <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos:</label>
+                    <label for="apellidos" class="block text-sm font-medium text-gray-700">Apellidos</label>
                     <input type="text" id="apellidos" name="apellidos" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="apellidosError" class="text-red-500 text-xs italic hidden">Los apellidos solo deben contener letras</p>
                 </div>
                 <div>
-                    <label for="numero_tarjeta" class="block text-sm font-medium text-gray-700">Número de Tarjeta:</label>
+                    <label for="numero_tarjeta" class="block text-sm font-medium text-gray-700">Número de Tarjeta</label>
                     <input type="text" id="numero_tarjeta" name="numero_tarjeta" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="tarjetaError" class="text-red-500 text-xs italic hidden">El número de tarjeta solo debe contener números</p>
                 </div>
                 <div class="md:col-span-2">
-                    <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección:</label>
+                    <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
                     <input type="text" id="direccion" name="direccion" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                 </div>
                 <div>
-                    <label for="motivo_visita" class="block text-sm font-medium text-gray-700">Motivo de Visita:</label>
+                    <label for="motivo_visita" class="block text-sm font-medium text-gray-700">Motivo de Visita</label>
                     <textarea id="motivo_visita" name="motivo_visita" required
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
                 </div>
                 <div>
-                    <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones:</label>
+                    <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
                     <textarea id="observaciones" name="observaciones"
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
                 </div>
@@ -63,8 +63,8 @@
 <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
     <div class="p-6">
         <h2 class="text-xl font-semibold mb-4 text-gray-800">Visitantes Actuales</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+        <div class="overflow-x-auto"> <!-- Permitir desplazamiento horizontal solo en la tabla -->
+            <table class="min-w-full w-full divide-y divide-gray-200"> <!-- Asegúrate de que la tabla tenga min-w-full y w-full -->
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>

@@ -124,6 +124,8 @@ DATETIME_FORMAT = 'd-m-Y H:i:s'
 DATE_FORMAT = 'd-m-Y'
 
 TIME_FORMAT = 'H:i:s'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
 
 
 # Static files (CSS, JavaScript, Images)

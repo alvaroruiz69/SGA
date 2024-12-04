@@ -6,11 +6,12 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path
 
 from core import views
+from core.views import get_vehicle_data
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('registro-visitantes/', views.registro_visitantes,
          name='registro_visitantes'),
     path('registro-vehiculos/', views.registro_vehiculos,
@@ -26,4 +27,6 @@ urlpatterns = [
     path('registrar-salida-proveedor/<int:proveedor_id>/',
          views.registrar_salida_proveedor, name='registrar_salida_proveedor'),
     path('api/visitor-data/', views.get_visitor_data, name='get_visitor_data'),
+    path('api/vehicle-data/', get_vehicle_data, name='get_vehicle_data'),
+    path('api/provider-data/', views.get_provider_data, name='get_provider_data'),
 ]

@@ -1,10 +1,12 @@
-from django.contrib.auth.models import User
+"""
+Este módulo contiene los modelos para la aplicación core del sistema de gestión de acceso.
+"""
+from django.contrib.auth.models import User  # pylint: disable=E5142
 from django.db import models
 from django.utils import timezone
 
 
 class Visitante(models.Model):
-    # Removemos unique=True si estaba presente para permitir un nuevo ingreso
     run = models.CharField(max_length=12)
     nombre = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)
@@ -23,7 +25,7 @@ class Visitante(models.Model):
 
 
 class Vehiculo(models.Model):
-    matricula = models.CharField(max_length=10, unique=True)
+    matricula = models.CharField(max_length=10)
     tipo_vehiculo = models.CharField(max_length=50)
     nombre_conductor = models.CharField(max_length=100)
     kilometraje_salida = models.IntegerField()
@@ -38,7 +40,7 @@ class Vehiculo(models.Model):
 
 
 class Proveedor(models.Model):
-    run = models.CharField(max_length=12, unique=True)
+    run = models.CharField(max_length=12)
     nombre_conductor = models.CharField(max_length=100)
     nombre_empresa = models.CharField(max_length=100)
     domicilio = models.CharField(max_length=200)

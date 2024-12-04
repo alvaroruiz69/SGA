@@ -414,6 +414,7 @@ logging-modules=logging
 # Only show warnings with the listed confidence levels. Leave empty to show
 # all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE,
 # UNDEFINED.
+disable=E5142
 confidence=HIGH,
            CONTROL_FLOW,
            INFERENCE,
