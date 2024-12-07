@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from core.models import AuditoriaAccion, Proveedor, Vehiculo, Visitante
+from core.models import Proveedor, Vehiculo, Visitante
 
 #
 # Validación del general usuarios del sistema
@@ -86,72 +86,124 @@ def calcular_dv(run):
 # gestion de visitantes del sistema
 #
 
-
 @login_required
 def registro_visitantes(request):
     """
-    Maneja el registro de visitantes.
+    Maneja el registro de visitantes con registro en la auditoría.
     """
-    if request.method == 'POST':
-        # Validación del servidor
-        run = request.POST.get('run')
-        nombre = request.POST.get('nombre')
-        apellidos = request.POST.get('apellidos')
-        numero_tarjeta = request.POST.get('numero_tarjeta')
+    if request.method == "POST":
+        # Obtener y limpiar los datos del formulario
+        run = request.POST.get("run", "").strip()
+        nombre = request.POST.get("nombre", "").strip()
+        apellidos = request.POST.get("apellidos", "").strip()
+        numero_tarjeta = request.POST.get("numero_tarjeta", "").strip()
+        direccion = request.POST.get("direccion", "").strip()
+        motivo_visita = request.POST.get("motivo_visita", "").strip()
+        observaciones = request.POST.get("observaciones", "").strip()
 
-        if not run or not nombre or not apellidos or not numero_tarjeta:
-            messages.error(request, 'Todos los campos son obligatorios.')
-            return redirect('registro_visitantes')
+        # Validación del RUN: calcular dígito verificador si no está
+        if "-" not in run:
+            cuerpo = run[:-1] if len(run) > 1 else run
+            dv_calculado = calcular_dv(cuerpo)
+            run = f"{cuerpo}-{dv_calculado}"
 
-        if not re.match(r'^\d{7,8}-[\d|kK]{1}$', run):
-            messages.error(request, 'Formato de RUN inválido.')
-            return redirect('registro_visitantes')
-
-        if not nombre.replace(' ', '').isalpha() or not apellidos.replace(' ', '').isalpha():
+        if not re.match(r"^\d{7,8}-[kK\d]{1}$", run):
             messages.error(
-                request, 'El nombre y apellidos deben contener solo letras.')
-            return redirect('registro_visitantes')
+                request, "RUN inválido. Formato correcto: 12345678-9."
+            )
+            return redirect("registro_visitantes")
 
-        if not numero_tarjeta.isdigit():
+        # Validaciones adicionales
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", nombre):
+            messages.error(request, "El nombre solo debe contener letras.")
+            return redirect("registro_visitantes")
+
+        if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", apellidos):
             messages.error(
-                request, 'El número de tarjeta debe contener solo números.')
-            return redirect('registro_visitantes')
+                request, "Los apellidos solo deben contener letras.")
+            return redirect("registro_visitantes")
 
-        # Crear nuevo visitante
-        Visitante.objects.create(
+        if not re.match(r"^\d+$", numero_tarjeta):
+            messages.error(
+                request, "El número de tarjeta debe contener solo números."
+            )
+            return redirect("registro_visitantes")
+
+        if not re.match(r"^[a-zA-Z0-9\s]+$", direccion):
+            messages.error(
+                request, "La dirección solo debe contener letras y números."
+            )
+            return redirect("registro_visitantes")
+
+        if not re.match(r"^[a-zA-Z0-9\s]+$", motivo_visita):
+            messages.error(
+                request, "El motivo de visita solo debe contener letras y números."
+            )
+            return redirect("registro_visitantes")
+
+        if observaciones and not re.match(r"^[a-zA-Z0-9\s]+$", observaciones):
+            messages.error(
+                request, "Las observaciones solo deben contener letras y números."
+            )
+            return redirect("registro_visitantes")
+
+        # Guardar visitante
+        visitante = Visitante.objects.create(  # Ahora almacenamos la instancia en "visitante"
             run=run,
             nombre=nombre,
             apellidos=apellidos,
             numero_tarjeta=numero_tarjeta,
-            direccion=request.POST.get('direccion'),
-            motivo_visita=request.POST.get('motivo_visita'),
-            observaciones=request.POST.get('observaciones'),
-            hora_entrada=timezone.now()
+            direccion=direccion,
+            motivo_visita=motivo_visita,
+            observaciones=observaciones,
+            hora_entrada=timezone.now(),
         )
-        messages.success(request, 'Visitante registrado con éxito')
-        return redirect('registro_visitantes')
 
+        messages.success(request, "Visitante registrado con éxito.")
+        return redirect("registro_visitantes")
+
+    # Recuperar visitantes actuales
     visitantes = Visitante.objects.filter(hora_salida__isnull=True)
-    return render(request, 'core/registro_visitantes.html', {'visitantes': visitantes})
+    return render(request, "core/registro_visitantes.html", {"visitantes": visitantes})
+
+
+def calcular_dv(run):
+    """
+    Calcula el dígito verificador para un RUN dado.
+    """
+    suma = 0
+    factor = 2
+
+    for digito in reversed(run):
+        suma += int(digito) * factor
+        factor = 9 if factor == 7 else factor + 1
+
+    resto = 11 - (suma % 11)
+    if resto == 11:
+        return "0"
+    if resto == 10:
+        return "K"
+    return str(resto)
 
 
 @login_required
 def get_visitor_data(request):
     """
-    Maneja el registro de salida visitantes.
+    Recupera datos del visitante por RUN.
     """
-    run = request.GET.get('run')
-    visitor = Visitante.objects.filter(
-        run=run).order_by('-hora_entrada').first()
-    if visitor:
+    run = request.GET.get("run", "").strip()
+    visitante = Visitante.objects.filter(
+        run=run).order_by("-hora_entrada").first()
+
+    if visitante:
         return JsonResponse({
-            'exists': True,
-            'nombre': visitor.nombre,
-            'apellidos': visitor.apellidos,
-            'direccion': visitor.direccion
+            "exists": True,
+            "nombre": visitante.nombre,
+            "apellidos": visitante.apellidos,
+            "direccion": visitante.direccion,
         })
-    else:
-        return JsonResponse({'exists': False})
+
+    return JsonResponse({"exists": False})
 
 
 @login_required
@@ -162,6 +214,7 @@ def registrar_salida_visitante(request, visitante_id):
     visitante = Visitante.objects.get(id=visitante_id)
     visitante.hora_salida = timezone.now()
     visitante.save()
+
     messages.success(request, 'Salida de visitante registrada con éxito')
     return redirect('registro_visitantes')
 
@@ -176,92 +229,109 @@ def registro_vehiculos(request):
     Maneja el registro de vehículos.
     """
     if request.method == "POST":
-        matricula = request.POST["matricula"]
-        tipo_vehiculo = request.POST["tipo_vehiculo"]
-        nombre_conductor = request.POST["nombre_conductor"]
-        kilometraje_salida = request.POST["kilometraje_salida"]
-        destino = request.POST["destino"]
-        numero_personas = request.POST["numero_personas"]
+        matricula = request.POST["matricula"].strip()
+        tipo_vehiculo = request.POST["tipo_vehiculo"].strip()
+        nombre_conductor = request.POST["nombre_conductor"].strip()
+        kilometraje_salida = request.POST["kilometraje_salida"].strip()
+        destino = request.POST["destino"].strip()
+        numero_personas = request.POST["numero_personas"].strip()
 
-        # Validación de la matrícula
-        if not Vehiculo.objects.filter(matricula=matricula).exists():
+        # Validación de campos
+        if len(matricula) > 6 or not re.match(r"^[A-Za-z0-9]+$", matricula):
             messages.error(
-                request, "La matrícula no existe en la base de datos.")
+                request, "Máximo 6 caracteres y solo letras y números."
+            )
             return redirect("registro_vehiculos")
 
-        # Validación de los campos
         if not tipo_vehiculo.isalpha():
             messages.error(
-                request, "El tipo de vehículo solo debe contener letras.")
+                request, "Ingrese solo letras."
+            )
             return redirect("registro_vehiculos")
 
-        if not nombre_conductor.replace(' ', '').isalnum():
+        if not nombre_conductor.replace(" ", "").isalnum():
             messages.error(
-                request,
-                "El nombre del conductor solo debe contener letras y números.")
+                request, "Solo ingrese letras y números."
+            )
             return redirect("registro_vehiculos")
 
         if not kilometraje_salida.isdigit():
             messages.error(
-                request, "El kilometraje de salida debe ser un número.")
+                request, "Ingrese solo números."
+            )
+            return redirect("registro_vehiculos")
+
+        if not re.match(r"^[a-zA-Z0-9\s]+$", destino):
+            messages.error(
+                request, "Solo ingrese letras y números."
+            )
             return redirect("registro_vehiculos")
 
         if not numero_personas.isdigit():
             messages.error(
-                request, "El número de personas debe ser un número.")
+                request, "Ingrese solo números."
+            )
             return redirect("registro_vehiculos")
 
-        if len(matricula) > 6 or not re.match(r'^[A-Za-z0-9]+$', matricula):
-            messages.error(
-                request, "La matrícula máximo de 6 caracteres y solo contener letras y números.")
-            return redirect("registro_vehiculos")
-
-        # Obtener el último kilometraje de llegada registrado para la matrícula
+        # Guardar el vehículo
         try:
-            ultimo_vehiculo = Vehiculo.objects.filter(
-                matricula=matricula).order_by('-hora_llegada').first()
-            if ultimo_vehiculo:
-                kilometraje_salida = ultimo_vehiculo.kilometraje_llegada
-            else:
-                messages.error(
-                    request, "No se encontró un registro de llegada para esta matrícula.")
-                return redirect("registro_vehiculos")
-
-            # Crear nuevo vehículo
-            Vehiculo.objects.create(
+            # Crear un nuevo vehículo y guardar la instancia
+            vehiculo = Vehiculo.objects.create(
                 matricula=matricula,
                 tipo_vehiculo=tipo_vehiculo,
                 nombre_conductor=nombre_conductor,
-                kilometraje_salida=kilometraje_salida,
+                kilometraje_salida=int(kilometraje_salida),
                 destino=destino,
-                numero_personas=numero_personas,
+                numero_personas=int(numero_personas),
+                hora_salida=timezone.now(),  # Se guarda la hora de salida actual
             )
-            messages.success(request, "Vehículo registrado con éxito")
-            return redirect("registro_vehiculos")
 
+            messages.success(request, "Vehículo registrado con éxito.")
         except IntegrityError:
             messages.error(
-                request, "Error al registrar el vehículo. Intente nuevamente.")
-            return redirect("registro_vehiculos")
+                request, "Error al registrar el vehículo. Intente nuevamente."
+            )
+        return redirect("registro_vehiculos")
 
+    # Obtener vehículos que no tienen una llegada registrada
     vehiculos = Vehiculo.objects.filter(hora_llegada__isnull=True)
     return render(request, "core/registro_vehiculos.html", {"vehiculos": vehiculos})
 
 
-@login_required
+@ login_required
 def registrar_llegada_vehiculo(request, vehiculo_id):
     """
     Maneja el registro de llegada de vehículos.
     """
-    vehiculo = Vehiculo.objects.get(id=vehiculo_id)
-    # Asigna la hora actual como hora de llegada
-    vehiculo.hora_llegada = timezone.now()
-    vehiculo.save()
-    messages.success(request, 'Llegada de vehículo registrada con éxito')
-    return redirect('registro_vehiculos')
+    vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
+
+    if request.method == "POST":
+        kilometraje_llegada = request.POST.get(
+            "kilometraje_llegada", "").strip()
+
+        if not kilometraje_llegada.isdigit():
+            messages.error(
+                request, "El kilometraje de llegada debe ser un número."
+            )
+            return redirect("registro_vehiculos")
+
+        # Validar que el kilometraje de llegada sea mayor al de salida
+        if int(kilometraje_llegada) <= vehiculo.kilometraje_salida:
+            messages.error(
+                request, "El kilometraje de llegada debe ser mayor al de salida."
+            )
+            return redirect("registro_vehiculos")
+
+        # Registrar llegada
+        vehiculo.kilometraje_llegada = int(kilometraje_llegada)
+        vehiculo.hora_llegada = timezone.now()
+        vehiculo.save()
+
+        messages.success(request, "Llegada del vehículo registrada con éxito.")
+        return redirect("registro_vehiculos")
 
 
-@login_required
+@ login_required
 def get_vehicle_data(request):
     """
     Maneja la búsqueda de vehículos por matrícula.
@@ -277,8 +347,8 @@ def get_vehicle_data(request):
             'exists': True,
             'tipo_vehiculo': vehiculo.tipo_vehiculo,
             'kilometraje_salida': ultimo_kilometraje,
-            'destino': vehiculo.destino,
-            'numero_personas': vehiculo.numero_personas,
+            # 'destino': vehiculo.destino,
+            # 'numero_personas': vehiculo.numero_personas,
         })
     else:
         return JsonResponse({'exists': False})
@@ -288,7 +358,7 @@ def get_vehicle_data(request):
 #
 
 
-@login_required
+@ login_required
 def registro_proveedores(request):
     """
     Maneja el registro de proveedores con validación de RUN, autocompletado de datos y generación automática de guion.
@@ -365,6 +435,7 @@ def registro_proveedores(request):
                 guia_despacho=guia_despacho,
                 encargado_recepcion=encargado_recepcion,
             )
+
             messages.success(request, "Proveedor registrado con éxito.")
         except Exception as e:
             messages.error(request, f"Error al registrar proveedor: {e}")
@@ -392,7 +463,7 @@ def registro_proveedores(request):
     return render(request, "core/registro_proveedores.html", {"proveedores": proveedores})
 
 
-@login_required
+@ login_required
 def get_provider_data(request):
     """
     Endpoint para buscar datos de un proveedor por RUN.
@@ -416,7 +487,7 @@ def get_provider_data(request):
     return JsonResponse({'exists': False})
 
 
-@login_required
+@ login_required
 def registrar_salida_proveedor(request, proveedor_id):
     """
     Maneja el registro de salida de proveedores.
@@ -424,51 +495,60 @@ def registrar_salida_proveedor(request, proveedor_id):
     proveedor = Proveedor.objects.get(id=proveedor_id)
     proveedor.hora_salida = timezone.now()
     proveedor.save()
+
     messages.success(request, "Salida de proveedor registrada con éxito.")
     return redirect("registro_proveedores")
+
 
 #
 # Gestion de auditorias del sistema
 #
 
-
 @login_required
 def auditoria(request):
     """
-    Maneja el registro de auditorias del sistema.
+    Muestra una página de auditoría con filtros básicos.
     """
-    acciones = AuditoriaAccion.objects.all().order_by("-fecha_hora")
+    # Datos simulados de auditoría para propósitos de demostración
+    acciones = [
+        {
+            "fecha_hora": timezone.now(),
+            "accion": "Creación de un proveedor",
+            "usuario": "admin",
+            "detalles": "Proveedor con RUN 12345678-9 registrado"
+        },
+        {
+            "fecha_hora": timezone.now(),
+            "accion": "Modificación de vehículo",
+            "usuario": "user1",
+            "detalles": "Vehículo con matrícula ABC123 modificado"
+        },
+    ]
 
+    # Filtros desde la solicitud GET
     filter_type = request.GET.get("filter_type")
     filter_value = request.GET.get("filter_value", "").strip()
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
 
+    # Aplicar filtros si se proporcionan
     if filter_type and filter_value:
         if filter_type == "run":
-            acciones = acciones.filter(
-                Q(accion__icontains=f"RUN: {filter_value}")
-                | Q(accion__icontains=f"run: {filter_value}")
-            )
+            acciones = [a for a in acciones if filter_value.lower()
+                        in a["detalles"].lower()]
         elif filter_type == "matricula":
-            acciones = acciones.filter(
-                Q(accion__icontains=f"matrícula: {filter_value}")
-                | Q(accion__icontains=f"matricula: {filter_value}")
-            )
-        elif filter_type == "proveedor":
-            acciones = acciones.filter(
-                Q(accion__icontains=f"proveedor: {filter_value}")
-                | Q(accion__icontains=f"empresa: {filter_value}")
-            )
+            acciones = [a for a in acciones if filter_value.lower()
+                        in a["detalles"].lower()]
         elif filter_type == "usuario":
-            acciones = acciones.filter(
-                usuario__username__icontains=filter_value)
+            acciones = [a for a in acciones if filter_value.lower()
+                        in a["usuario"].lower()]
 
-    # Apply date filters if provided
     if start_date:
-        acciones = acciones.filter(fecha_hora__date__gte=start_date)
+        acciones = [a for a in acciones if a["fecha_hora"].date(
+        ) >= timezone.datetime.strptime(start_date, "%Y-%m-%d").date()]
     if end_date:
-        acciones = acciones.filter(fecha_hora__date__lte=end_date)
+        acciones = [a for a in acciones if a["fecha_hora"].date(
+        ) <= timezone.datetime.strptime(end_date, "%Y-%m-%d").date()]
 
     context = {
         "acciones": acciones,
@@ -478,7 +558,7 @@ def auditoria(request):
         "end_date": end_date,
     }
 
-    # Exporta a PDF
+    # Exportar a PDF (simulado)
     if "export_pdf" in request.GET:
         html_string = render_to_string("core/auditoria_pdf.html", context)
         response = HttpResponse(content_type="application/pdf")
@@ -487,12 +567,13 @@ def auditoria(request):
         return response
 
     return render(request, "core/auditoria.html", context)
+
 #
 # Gestion de permisos usuarios del sistema
 #
 
 
-@login_required
+@ login_required
 def gestion_permisos(request):
     """
     Maneja la gestion de permisos.

@@ -23,12 +23,13 @@
           </div>
           <div>
             <label for="nombre_empresa" class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
-            <input type="text" name="nombre_empresa" id="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-            <p id="empresaError" class="text-red-500 text-xs italic hidden">Ingrese solo letras.</p>
+            <input type="text" name="nombre_empresa" id="nombre_empresa" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="empresaError" class="text-red-500 text-xs italic hidden">Ingrese solo letras y números.</p>
           </div>
           <div>
             <label for="domicilio" class="block text-sm font-medium text-gray-700">Domicilio</label>
-            <input type="text" name="domicilio" id="domicilio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <input type="text" name="domicilio" id="domicilio" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <p id="domicilioError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
           </div>
           <div>
             <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
@@ -38,7 +39,7 @@
           <div>
             <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
             <input type="text" name="matricula" id="matricula" required maxlength="6" pattern="^[A-Za-z0-9]+$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo letras y números.</p>
+            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo ingrese letras y números.</p>
           </div>
           <div>
             <label for="guia_despacho" class="block text-sm font-medium text-gray-700">Nº Guía de Des pacho o Factura</label>

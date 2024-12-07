@@ -4,6 +4,7 @@ Este módulo contiene los modelos para la aplicación core del sistema de gesti�
 from django.contrib.auth.models import User  # pylint: disable=E5142
 from django.db import models
 from django.utils import timezone
+from django.utils.timezone import now
 
 
 class Visitante(models.Model):
@@ -53,12 +54,3 @@ class Proveedor(models.Model):
 
     def __str__(self):
         return f"{self.nombre_empresa} - {self.nombre_conductor}"
-
-
-class AuditoriaAccion(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    accion = models.CharField(max_length=200)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.usuario.username} - {self.accion}"

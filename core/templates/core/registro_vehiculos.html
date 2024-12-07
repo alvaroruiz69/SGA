@@ -15,7 +15,7 @@
           <div>
             <label for="matricula" class="block text-sm font-medium text-gray-700">Matrícula</label>
             <input type="text" name="matricula" id="matricula" required maxlength="6" pattern="^[A-Za-z0-9]+$" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo contener letras y números.</p>
+            <p id="matriculaError" class="text-red-500 text-xs italic hidden">Máximo 6 caracteres y solo letras y números.</p>
           </div>
           <div>
             <label for="tipo_vehiculo" class="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
@@ -25,7 +25,7 @@
           <div>
             <label for="nombre_conductor" class="block text-sm font-medium text-gray-700">Nombre del Conductor</label>
             <input type="text" name="nombre_conductor" id="nombre_conductor" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-            <p id="nombreConductorError" class="text-red-500 text-xs italic hidden">Ingrese solo letras y números.</p>
+            <p id="nombreConductorError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
           </div>
           <div>
             <label for="kilometraje_salida" class="block text-sm font-medium text-gray-700">Kilometraje de Salida</label>
@@ -34,7 +34,8 @@
           </div>
           <div>
             <label for="destino" class="block text-sm font-medium text-gray-700">Destino</label>
-            <input type="text" name="destino" id="destino" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <input type="text" name="destino" id="destino" required pattern="[a-zA-Z0-9\s]+" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+            <p id="destinoError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
           </div>
           <div>
             <label for="numero_personas" class="block text-sm font-medium text-gray-700">Número de Personas</label>
@@ -98,6 +99,7 @@
     const nombreConductorInput = document.getElementById('nombre_conductor')
     const kilometrajeSalidaInput = document.getElementById('kilometraje_salida')
     const numeroPersonasInput = document.getElementById('numero_personas')
+    const destinoInput = document.getElementById('destino')
     
     matriculaInput.addEventListener('input', () => {
       if (matriculaInput.value.length > 6 || !/^[A-Za-z0-9]+$/.test(matriculaInput.value)) {
@@ -114,8 +116,6 @@
           if (data.exists) {
             tipoVehiculoInput.value = data.tipo_vehiculo
             kilometrajeSalidaInput.value = data.kilometraje_salida // Último kilometraje de llegada
-            destinoInput.value = data.destino
-            numeroPersonasInput.value = data.numero_personas
           } else {
             console.error('La matrícula no está registrada.')
           }
@@ -151,6 +151,14 @@
         document.getElementById('kilometrajeSalidaError').classList.remove('hidden')
       } else {
         document.getElementById('kilometrajeSalidaError').classList.add('hidden')
+      }
+    })
+    // Validación de destino
+    destinoInput.addEventListener('input', () => {
+      if (!/^[a-zA-Z0-9\s]+$/.test(destinoInput.value)) {
+        document.getElementById('destinoError').classList.remove('hidden')
+      } else {
+        document.getElementById('destinoError').classList.add('hidden')
       }
     })
     
