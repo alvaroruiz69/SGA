@@ -36,3 +36,25 @@ body {
   .alert.fade-out {
     opacity: 0;
   }
+  /* Estilos para el PDF de auditoría */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    font-size: 11px;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}

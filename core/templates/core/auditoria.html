@@ -7,12 +7,11 @@
 
 <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <h2 class="text-xl font-semibold mb-4">Filtros de Auditoría</h2>
-    <form method="get" class="space-y-4">
+    <form method="get" class="space-y-4" id="auditForm" onsubmit="return validateForm()">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
-                <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">Todos</option>
+                <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300" onchange="clearFilterValue()">
                     <option value="run" {% if filter_type == 'run' %}selected{% endif %}>RUN</option>
                     <option value="matricula" {% if filter_type == 'matricula' %}selected{% endif %}>Matrícula</option>
                     <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
@@ -21,111 +20,88 @@
             </div>
             <div>
                 <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro</label>
-                <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300">
             </div>
             <div>
                 <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300">
             </div>
             <div>
                 <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-                <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300">
             </div>
         </div>
         <div class="flex justify-end">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                 Aplicar Filtros
             </button>
         </div>
     </form>
 </div>
 
+{% if modelo %}
 <div class="bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-xl font-semibold mb-4">Resultados de Auditoría</h2>
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha y Hora</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for accion in acciones %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ accion.id }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ accion.usuario.username }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ accion.accion }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ accion.fecha_hora|date:"d/m/Y H:i:s" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button onclick="mostrarDetalles('{{ accion.id }}')" class="text-blue-600 hover:text-blue-900">Ver detalles</button>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de auditoría.</td>
-                </tr>
+    <h2 class="text-xl font-semibold mb-4">Resultados de Auditoría - {{ modelo }}</h2>
+    <table class="w-full table-auto">
+        <thead class="bg-gray-50">
+            <tr>
+                {% for columna in columnas %}
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ columna }}</th>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for item in resultados %}
+            <tr>
+                {% for valor in item.values %}
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ valor|default:"-" }}</td>
+                {% endfor %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{{ columnas|length }}" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de auditoría.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+{% endif %}
 
-<div class="mt-8 flex justify-end">
-    <button onclick="exportarPDF()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+<div class="mt-8 flex justify-end space-x-4">
+    <button onclick="exportarPDF()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
         Exportar a PDF
+    </button>
+    <button onclick="imprimirReporte()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+        Imprimir Reporte
     </button>
 </div>
 
-<!-- Modal para mostrar detalles -->
-<div id="detallesModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                    Detalles de la Acción
-                </h3>
-                <div class="mt-2">
-                    <p id="detallesContenido" class="text-sm text-gray-500"></p>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" onclick="cerrarModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Cerrar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-function mostrarDetalles(id) {
-    // llamada AJAX para obtener los detalles de la accion
-    // por ahora, mensaje de ejemplo
-    document.getElementById('detallesContenido').textContent = `Detalles de la acción con ID: ${id}`;
-    document.getElementById('detallesModal').classList.remove('hidden');
-}
-
-function cerrarModal() {
-    document.getElementById('detallesModal').classList.add('hidden');
-}
-
 function exportarPDF() {
-    // redirige la misma URL con el parametro export_pdf
     window.location.href = window.location.pathname + window.location.search + (window.location.search ? '&' : '?') + 'export_pdf=1';
 }
 
-// cierra el modal si se hace clic fuera
-window.onclick = function(event) {
-    var modal = document.getElementById('detallesModal');
-    if (event.target == modal) {
-        cerrarModal();
+function imprimirReporte() {
+    window.print();
+}
+
+function clearFilterValue() {
+    document.getElementById('filter_value').value = '';
+}
+
+function validateForm() {
+    const filterType = document.getElementById('filter_type').value;
+    const filterValue = document.getElementById('filter_value').value.trim();
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+
+    if (!filterType || !filterValue || !startDate || !endDate) {
+        alert('Todos los campos de filtro son obligatorios: Tipo de Filtro, Valor del Filtro, Fecha de Inicio y Fecha de Fin.');
+        return false;
     }
+    return true;
 }
 </script>
+
 {% endblock %}

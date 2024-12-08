@@ -9,15 +9,18 @@ import weasyprint
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
+from weasyprint import CSS, HTML
 
-from core.models import Proveedor, Vehiculo, Visitante
+from core.models import AuditoriaAccion, Proveedor, Vehiculo, Visitante
 
 #
 # Validación del general usuarios del sistema
@@ -157,6 +160,13 @@ def registro_visitantes(request):
             motivo_visita=motivo_visita,
             observaciones=observaciones,
             hora_entrada=timezone.now(),
+        )
+
+        # Registrar acción en auditoría
+        registrar_accion_auditoria(
+            usuario=request.user,
+            accion="Registro de Visitante",
+            detalles=f"Se registró el visitante {nombre} {apellidos} con RUN {run}"
         )
 
         messages.success(request, "Visitante registrado con éxito.")
@@ -504,69 +514,144 @@ def registrar_salida_proveedor(request, proveedor_id):
 # Gestion de auditorias del sistema
 #
 
+
 @login_required
 def auditoria(request):
-    """
-    Muestra una página de auditoría con filtros básicos.
-    """
-    # Datos simulados de auditoría para propósitos de demostración
-    acciones = [
-        {
-            "fecha_hora": timezone.now(),
-            "accion": "Creación de un proveedor",
-            "usuario": "admin",
-            "detalles": "Proveedor con RUN 12345678-9 registrado"
-        },
-        {
-            "fecha_hora": timezone.now(),
-            "accion": "Modificación de vehículo",
-            "usuario": "user1",
-            "detalles": "Vehículo con matrícula ABC123 modificado"
-        },
-    ]
-
-    # Filtros desde la solicitud GET
     filter_type = request.GET.get("filter_type")
     filter_value = request.GET.get("filter_value", "").strip()
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
 
-    # Aplicar filtros si se proporcionan
-    if filter_type and filter_value:
-        if filter_type == "run":
-            acciones = [a for a in acciones if filter_value.lower()
-                        in a["detalles"].lower()]
-        elif filter_type == "matricula":
-            acciones = [a for a in acciones if filter_value.lower()
-                        in a["detalles"].lower()]
-        elif filter_type == "usuario":
-            acciones = [a for a in acciones if filter_value.lower()
-                        in a["usuario"].lower()]
+    resultados = []
+    columnas = []
+    modelo = ""
 
-    if start_date:
-        acciones = [a for a in acciones if a["fecha_hora"].date(
-        ) >= timezone.datetime.strptime(start_date, "%Y-%m-%d").date()]
-    if end_date:
-        acciones = [a for a in acciones if a["fecha_hora"].date(
-        ) <= timezone.datetime.strptime(end_date, "%Y-%m-%d").date()]
+    # Validación de campos obligatorios
+    if not (filter_type and filter_value and start_date and end_date):
+        messages.error(request, "Todos los campos de filtro son obligatorios.")
+        return render(request, "core/auditoria.html")
+
+    if filter_type == "run":
+        queryset = Visitante.objects.filter(
+            run__icontains=filter_value,
+            hora_entrada__date__range=[start_date, end_date]
+        )
+        columnas = ["RUN", "Nombre", "Apellidos", "Número de Tarjeta", "Dirección",
+                    "Motivo de Visita", "Observaciones", "Hora de Entrada", "Hora de Salida"]
+        modelo = "Visitantes"
+        resultados = list(queryset.values(
+            'run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
+            'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida'
+        ))
+        print("Resultados:", resultados)
+
+    elif filter_type == "matricula":
+        queryset = Vehiculo.objects.filter(
+            matricula__icontains=filter_value,
+            hora_salida__date__range=[start_date, end_date]
+        )
+        columnas = ["Matrícula", "Tipo de Vehículo", "Nombre del Conductor", "Kilometraje de Salida",
+                    "Destino", "Número de Personas", "Hora de Salida", "Hora de Llegada"]
+        modelo = "Vehículos"
+        resultados = list(queryset.values(
+            'matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
+            'destino', 'numero_personas', 'hora_salida', 'hora_llegada'
+        ))
+
+    elif filter_type == "proveedor":
+        queryset = Proveedor.objects.filter(
+            run__icontains=filter_value,
+            hora_ingreso__date__range=[start_date, end_date]
+        )
+        columnas = ["RUN", "Nombre del Conductor", "Nombre de la Empresa", "Domicilio", "Tipo de Vehículo",
+                    "Matrícula", "Guía de Despacho", "Encargado de Recepción", "Hora de Ingreso", "Hora de Salida"]
+        modelo = "Proveedores"
+        resultados = list(queryset.values(
+            'run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
+            'tipo_vehiculo', 'matricula', 'guia_despacho',
+            'encargado_recepcion', 'hora_ingreso', 'hora_salida'
+        ))
+
+    elif filter_type == "usuario":
+        queryset = User.objects.filter(
+            username__icontains=filter_value,
+            date_joined__date__range=[start_date, end_date]
+        )
+        columnas = ["Usuario", "Nombre Completo", "Email", "Fecha de Ingreso"]
+        modelo = "Usuarios"
+        resultados = list(queryset.values(
+            'username', 'first_name', 'email', 'date_joined'
+        ))
+
+    # Generar PDF si se solicita
+    if "export_pdf" in request.GET:
+        context = {
+            "resultados": resultados,
+            "columnas": columnas,
+            "modelo": modelo,
+            "filter_type": filter_type,
+            "filter_value": filter_value,
+            "start_date": start_date,
+            "end_date": end_date,
+            "user": request.user,
+            "now": timezone.now(),
+        }
+        html_string = render_to_string("core/auditoria_pdf.html", context)
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="reporte_auditoria.pdf"'
+
+        # Aplicar orientación horizontal y márgenes mínimos
+        css = CSS(string="""
+            @page {
+                size: landscape;
+                margin: 10px;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+                font-size: 11px;
+            }
+            th {
+                background-color: #f8f9fa;
+                font-weight: bold;
+            }
+        """)
+
+        HTML(string=html_string).write_pdf(response, stylesheets=[css])
+        return response
 
     context = {
-        "acciones": acciones,
+        "resultados": resultados,
+        "columnas": columnas,
+        "modelo": modelo,
         "filter_type": filter_type,
         "filter_value": filter_value,
         "start_date": start_date,
         "end_date": end_date,
     }
 
-    # Exportar a PDF (simulado)
-    if "export_pdf" in request.GET:
-        html_string = render_to_string("core/auditoria_pdf.html", context)
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = 'attachment; filename="auditoria.pdf"'
-        weasyprint.HTML(string=html_string).write_pdf(response)
-        return response
-
     return render(request, "core/auditoria.html", context)
+
+
+def registrar_accion_auditoria(usuario, accion, detalles):
+    """
+    Registra una acción de auditoría en la base de datos.
+    """
+    AuditoriaAccion.objects.create(
+        usuario=usuario,
+        accion=accion,
+        detalles=detalles,
+        fecha_hora=timezone.now()
+    )
 
 #
 # Gestion de permisos usuarios del sistema
