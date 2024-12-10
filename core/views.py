@@ -4,12 +4,13 @@ Este módulo contiene las vistas para manejar las funcionalidades de la aplicaci
 # pylint: disable=import-error
 
 import re
+from datetime import datetime
 
 import weasyprint
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import IntegrityError
@@ -20,7 +21,9 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from weasyprint import CSS, HTML
 
-from core.models import AuditoriaAccion, Proveedor, Vehiculo, Visitante
+from core.models import Proveedor, Vehiculo, Visitante
+
+from .models import Proveedor, Vehiculo, Visitante
 
 #
 # Validación del general usuarios del sistema
@@ -160,13 +163,6 @@ def registro_visitantes(request):
             motivo_visita=motivo_visita,
             observaciones=observaciones,
             hora_entrada=timezone.now(),
-        )
-
-        # Registrar acción en auditoría
-        registrar_accion_auditoria(
-            usuario=request.user,
-            accion="Registro de Visitante",
-            detalles=f"Se registró el visitante {nombre} {apellidos} con RUN {run}"
         )
 
         messages.success(request, "Visitante registrado con éxito.")
@@ -357,8 +353,6 @@ def get_vehicle_data(request):
             'exists': True,
             'tipo_vehiculo': vehiculo.tipo_vehiculo,
             'kilometraje_salida': ultimo_kilometraje,
-            # 'destino': vehiculo.destino,
-            # 'numero_personas': vehiculo.numero_personas,
         })
     else:
         return JsonResponse({'exists': False})
@@ -514,7 +508,6 @@ def registrar_salida_proveedor(request, proveedor_id):
 # Gestion de auditorias del sistema
 #
 
-
 @login_required
 def auditoria(request):
     filter_type = request.GET.get("filter_type")
@@ -526,62 +519,63 @@ def auditoria(request):
     columnas = []
     modelo = ""
 
-    # Validación de campos obligatorios
-    if not (filter_type and filter_value and start_date and end_date):
-        messages.error(request, "Todos los campos de filtro son obligatorios.")
-        return render(request, "core/auditoria.html")
+    if start_date and end_date:
+        if filter_type == "visitante":
+            queryset = Visitante.objects.filter(
+                hora_entrada__date__range=[start_date, end_date]
+            )
+            if filter_value:
+                queryset = queryset.filter(run__icontains=filter_value)
+            columnas = ["RUN", "Nombre", "Apellidos", "Número de Tarjeta", "Dirección",
+                        "Motivo de Visita", "Observaciones", "Hora de Entrada", "Hora de Salida"]
+            modelo = "Visitantes"
+            resultados = list(queryset.values(
+                'run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
+                'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida'
+            ))
 
-    if filter_type == "run":
-        queryset = Visitante.objects.filter(
-            run__icontains=filter_value,
-            hora_entrada__date__range=[start_date, end_date]
-        )
-        columnas = ["RUN", "Nombre", "Apellidos", "Número de Tarjeta", "Dirección",
-                    "Motivo de Visita", "Observaciones", "Hora de Entrada", "Hora de Salida"]
-        modelo = "Visitantes"
-        resultados = list(queryset.values(
-            'run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
-            'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida'
-        ))
-        print("Resultados:", resultados)
+        elif filter_type == "vehiculo":
+            queryset = Vehiculo.objects.filter(
+                hora_salida__date__range=[start_date, end_date]
+            )
+            if filter_value:
+                queryset = queryset.filter(matricula__icontains=filter_value)
+            columnas = ["Matrícula", "Tipo de Vehículo", "Nombre del Conductor", "Kilometraje de Salida",
+                        "Destino", "Número de Personas", "Hora de Salida", "Hora de Llegada"]
+            modelo = "Vehículos"
+            resultados = list(queryset.values(
+                'matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
+                'destino', 'numero_personas', 'hora_salida', 'hora_llegada'
+            ))
 
-    elif filter_type == "matricula":
-        queryset = Vehiculo.objects.filter(
-            matricula__icontains=filter_value,
-            hora_salida__date__range=[start_date, end_date]
-        )
-        columnas = ["Matrícula", "Tipo de Vehículo", "Nombre del Conductor", "Kilometraje de Salida",
-                    "Destino", "Número de Personas", "Hora de Salida", "Hora de Llegada"]
-        modelo = "Vehículos"
-        resultados = list(queryset.values(
-            'matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
-            'destino', 'numero_personas', 'hora_salida', 'hora_llegada'
-        ))
+        elif filter_type == "proveedor":
+            queryset = Proveedor.objects.filter(
+                hora_ingreso__date__range=[start_date, end_date]
+            )
+            if filter_value:
+                queryset = queryset.filter(Q(run__icontains=filter_value) | Q(
+                    nombre_empresa__icontains=filter_value))
+            columnas = ["RUN", "Nombre del Conductor", "Nombre de la Empresa", "Domicilio", "Tipo de Vehículo",
+                        "Matrícula", "Guía de Despacho", "Encargado de Recepción", "Hora de Ingreso", "Hora de Salida"]
+            modelo = "Proveedores"
+            resultados = list(queryset.values(
+                'run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
+                'tipo_vehiculo', 'matricula', 'guia_despacho',
+                'encargado_recepcion', 'hora_ingreso', 'hora_salida'
+            ))
 
-    elif filter_type == "proveedor":
-        queryset = Proveedor.objects.filter(
-            run__icontains=filter_value,
-            hora_ingreso__date__range=[start_date, end_date]
-        )
-        columnas = ["RUN", "Nombre del Conductor", "Nombre de la Empresa", "Domicilio", "Tipo de Vehículo",
-                    "Matrícula", "Guía de Despacho", "Encargado de Recepción", "Hora de Ingreso", "Hora de Salida"]
-        modelo = "Proveedores"
-        resultados = list(queryset.values(
-            'run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
-            'tipo_vehiculo', 'matricula', 'guia_despacho',
-            'encargado_recepcion', 'hora_ingreso', 'hora_salida'
-        ))
-
-    elif filter_type == "usuario":
-        queryset = User.objects.filter(
-            username__icontains=filter_value,
-            date_joined__date__range=[start_date, end_date]
-        )
-        columnas = ["Usuario", "Nombre Completo", "Email", "Fecha de Ingreso"]
-        modelo = "Usuarios"
-        resultados = list(queryset.values(
-            'username', 'first_name', 'email', 'date_joined'
-        ))
+        elif filter_type == "usuario":
+            queryset = User.objects.filter(
+                date_joined__date__range=[start_date, end_date]
+            )
+            if filter_value:
+                queryset = queryset.filter(username__icontains=filter_value)
+            columnas = ["Usuario", "Nombre Completo",
+                        "Email", "Fecha de Ingreso"]
+            modelo = "Usuarios"
+            resultados = list(queryset.values(
+                'username', 'first_name', 'last_name', 'email', 'date_joined'
+            ))
 
     # Generar PDF si se solicita
     if "export_pdf" in request.GET:
@@ -600,7 +594,6 @@ def auditoria(request):
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="reporte_auditoria.pdf"'
 
-        # Aplicar orientación horizontal y márgenes mínimos
         css = CSS(string="""
             @page {
                 size: landscape;
@@ -642,25 +635,92 @@ def auditoria(request):
     return render(request, "core/auditoria.html", context)
 
 
-def registrar_accion_auditoria(usuario, accion, detalles):
-    """
-    Registra una acción de auditoría en la base de datos.
-    """
-    AuditoriaAccion.objects.create(
-        usuario=usuario,
-        accion=accion,
-        detalles=detalles,
-        fecha_hora=timezone.now()
-    )
-
 #
 # Gestion de permisos usuarios del sistema
 #
 
+def is_auditor(user):
+    return user.groups.filter(name='Auditor').exists()
 
-@ login_required
+
+def is_security_personnel(user):
+    return user.groups.filter(name='Seguridad').exists()
+
+
+@login_required
 def gestion_permisos(request):
-    """
-    Maneja la gestion de permisos.
-    """
-    return render(request, "core/gestion_permisos.html")
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        # Validaciones del nombre de usuario
+        if not re.match(r'^[a-zA-Z]+(\.[a-zA-Z]+){0,2}$', username):
+            messages.error(
+                request, "El usuario debe tener el formato nombre.apellido.apellido.")
+            return redirect('gestion_permisos')
+
+        # Validaciones de contraseña
+        if len(password) < 10 or len(password) > 12 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password) or not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            messages.error(
+                request, "La contraseña debe tener entre 10 y 12 caracteres, incluyendo mayúsculas, minúsculas, números y un carácter especial.")
+            return redirect('gestion_permisos')
+
+        # Crear usuario y asignar grupo
+        try:
+            user = User.objects.create_user(
+                username=username, password=password)
+
+            if role == "Auditor":
+                group = Group.objects.get(name='Auditor')
+            elif role == "Seguridad":
+                group = Group.objects.get(name='Seguridad')
+            else:
+                messages.error(request, "El rol especificado no es válido.")
+                return redirect('gestion_permisos')
+
+            user.groups.add(group)
+            messages.success(request, "Usuario creado con éxito.")
+        except Group.DoesNotExist:
+            messages.error(request, "El grupo especificado no existe.")
+        except Exception as e:
+            messages.error(request, f"Error al crear el usuario: {e}")
+
+    # Listar usuarios sin incluir el grupo Admin
+    users = User.objects.exclude(groups__name='Admin')
+    paginator = Paginator(users, 10)  # Mostrar 10 usuarios por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "core/gestion_permisos.html", {
+        "page_obj": page_obj,
+    })
+
+
+@login_required
+def editar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        role = request.POST.get("role")
+
+        user.username = username
+        if password:
+            user.set_password(password)
+        user.save()
+
+        # Actualizar grupos
+        user.groups.clear()
+        if role == "Auditor":
+            group = Group.objects.get(name='Auditor')
+            user.groups.add(group)
+        elif role == "Seguridad":
+            group = Group.objects.get(name='Seguridad')
+            user.groups.add(group)
+
+        messages.success(request, "Usuario editado con éxito.")
+        return redirect('gestion_permisos')
+
+    return render(request, "core/gestion_permisos.html", {"selected_user": user})

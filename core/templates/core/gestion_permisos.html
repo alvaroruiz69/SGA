@@ -1,58 +1,64 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-  <h1 class="text-3xl font-bold mb-6">Gestión de Permisos</h1>
+<h1 class="text-3xl font-bold mb-6">Gestión de Permisos</h1>
 
-  <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <h2 class="text-xl font-semibold mb-4">Nuevo Usuario</h2>
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold mb-4">Agregar Usuario</h2>
     <form method="post" class="space-y-4">
-      {% csrf_token %}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% csrf_token %}
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
-          <input type="text" name="username" id="username" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
+            <input type="text" name="username" id="username" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ selected_user.username|default:'' }}" />
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-          <input type="password" name="password" id="password" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+            <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
         </div>
         <div>
-          <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Permiso</label>
-          <select name="role" id="role" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-            <option value="security">Personal de Seguridad</option>
-            <option value="auditor">Auditor</option>
-            <option value="admin">Administrador</option>
-          </select>
+            <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Permiso</label>
+            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                <option value="Seguridad" {% if selected_user.groups.all.0.name == 'Seguridad' %}selected{% endif %}>Seguridad</option>
+                <option value="Auditor" {% if selected_user.groups.all.0.name == 'Auditor' %}selected{% endif %}>Auditor</option>
+            </select>
         </div>
-      </div>
-      <div class="flex justify-end">
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Guardar Usuario</button>
-      </div>
+        <div class="flex justify-end">
+            <button type="submit" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded">Guardar Usuario</button>
+        </div>
     </form>
-  </div>
+</div>
 
-  <div class="bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-xl font-semibold mb-4">Listado de Usuarios</h2>
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+<h2 class="text-xl font-semibold mb-4">Listado de Usuarios</h2>
+<table class="min-w-full divide-y divide-gray-200">
+    <thead>
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
         </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        {% for user in users %}
-          <tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+        {% for user in page_obj %}
+        <tr>
             <td class="px-6 py-4 whitespace-nowrap">{{ user.username }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ user.role }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ user.groups.all|join:", " }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2">Editar</button>
-              <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Eliminar</button>
+                <a href="{% url 'editar_usuario' user.id %}" class="bg-orange-500 text-white font-bold py-2 px-4 rounded">Editar</a>
             </td>
-          </tr>
+        </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </tbody>
+</table>
+
+<div class="mt-4">
+    <span class="text-sm">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    <div class="flex justify-between">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="text-blue-600 hover:text-blue-900">Anterior</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="text-blue-600 hover:text-blue-900">Siguiente</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

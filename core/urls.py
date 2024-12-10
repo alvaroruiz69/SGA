@@ -6,7 +6,8 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path
 
 from core import views
-from core.views import get_vehicle_data
+
+from .views import editar_usuario, gestion_permisos
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -18,7 +19,6 @@ urlpatterns = [
          name='registro_vehiculos'),
     path('registro-proveedores/', views.registro_proveedores,
          name='registro_proveedores'),
-    path('gestion-permisos/', views.gestion_permisos, name='gestion_permisos'),
     path('auditoria/', views.auditoria, name='auditoria'),
     path('registrar-salida-visitante/<int:visitante_id>/',
          views.registrar_salida_visitante, name='registrar_salida_visitante'),
@@ -27,6 +27,11 @@ urlpatterns = [
     path('registrar-salida-proveedor/<int:proveedor_id>/',
          views.registrar_salida_proveedor, name='registrar_salida_proveedor'),
     path('api/visitor-data/', views.get_visitor_data, name='get_visitor_data'),
-    path('api/vehicle-data/', get_vehicle_data, name='get_vehicle_data'),
+    path('api/vehicle-data/', views.get_vehicle_data, name='get_vehicle_data'),
     path('api/provider-data/', views.get_provider_data, name='get_provider_data'),
+
+    path('gestion_permisos/', views.gestion_permisos, name='gestion_permisos'),
+    path('editar_usuario/<int:user_id>/',
+         views.editar_usuario, name='editar_usuario'),
+
 ]

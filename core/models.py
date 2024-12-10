@@ -54,13 +54,3 @@ class Proveedor(models.Model):
 
     def __str__(self):
         return f"{self.nombre_empresa} - {self.nombre_conductor}"
-
-
-class AuditoriaAccion(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    accion = models.CharField(max_length=255)
-    detalles = models.TextField()
-    fecha_hora = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.usuario.username} - {self.accion} - {self.fecha_hora}"

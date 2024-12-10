@@ -7,28 +7,28 @@
 
 <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <h2 class="text-xl font-semibold mb-4">Filtros de Auditoría</h2>
-    <form method="get" class="space-y-4" id="auditForm" onsubmit="return validateForm()">
+    <form method="get" class="space-y-4" id="auditForm">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
-                <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300" onchange="clearFilterValue()">
-                    <option value="run" {% if filter_type == 'run' %}selected{% endif %}>RUN</option>
-                    <option value="matricula" {% if filter_type == 'matricula' %}selected{% endif %}>Matrícula</option>
+                <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300" required>
+                    <option value="visitante" {% if filter_type == 'visitante' %}selected{% endif %}>Visitante</option>
+                    <option value="vehiculo" {% if filter_type == 'vehiculo' %}selected{% endif %}>Vehículo</option>
                     <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
                     <option value="usuario" {% if filter_type == 'usuario' %}selected{% endif %}>Usuario</option>
                 </select>
             </div>
             <div>
-                <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro</label>
+                <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro (Opcional)</label>
                 <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300">
             </div>
             <div>
                 <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300">
+                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300" required>
             </div>
             <div>
                 <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-                <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300">
+                <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300" required>
             </div>
         </div>
         <div class="flex justify-end">
@@ -42,37 +42,38 @@
 {% if modelo %}
 <div class="bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-xl font-semibold mb-4">Resultados de Auditoría - {{ modelo }}</h2>
-    <table class="w-full table-auto">
-        <thead class="bg-gray-50">
-            <tr>
-                {% for columna in columnas %}
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ columna }}</th>
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto">
+            <thead class="bg-gray-50">
+                <tr>
+                    {% for columna in columnas %}
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ columna }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for item in resultados %}
+                <tr>
+                    {% for valor in item.values %}
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ valor|default:"-" }}</td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ columnas|length }}" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de auditoría.</td>
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for item in resultados %}
-            <tr>
-                {% for valor in item.values %}
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ valor|default:"-" }}</td>
-                {% endfor %}
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="{{ columnas|length }}" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de auditoría.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endif %}
-
 
 <div class="mt-8 flex justify-end space-x-4">
     <button onclick="exportarPDF()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
         Exportar a PDF
     </button>
-    <button onclick="imprimirReporte()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+    <button onclick="imprimirReporte()" class="bg-yellow-500 hover:bg-yellow- 600 text-white font-bold py-2 px-4 rounded">
         Imprimir Reporte
     </button>
 </div>
@@ -84,23 +85,6 @@ function exportarPDF() {
 
 function imprimirReporte() {
     window.print();
-}
-
-function clearFilterValue() {
-    document.getElementById('filter_value').value = '';
-}
-
-function validateForm() {
-    const filterType = document.getElementById('filter_type').value;
-    const filterValue = document.getElementById('filter_value').value.trim();
-    const startDate = document.getElementById('start_date').value;
-    const endDate = document.getElementById('end_date').value;
-
-    if (!filterType || !filterValue || !startDate || !endDate) {
-        alert('Todos los campos de filtro son obligatorios: Tipo de Filtro, Valor del Filtro, Fecha de Inicio y Fecha de Fin.');
-        return false;
-    }
-    return true;
 }
 </script>
 
