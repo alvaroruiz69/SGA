@@ -6,66 +6,210 @@
 <h1 class="text-3xl font-bold mb-6">Auditoría del Sistema</h1>
 
 <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <h2 class="text-xl font-semibold mb-4">Filtros de Auditoría</h2>
-    <form method="get" class="space-y-4" id="auditForm">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-                <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
-                <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300" required>
-                    <option value="visitante" {% if filter_type == 'visitante' %}selected{% endif %}>Visitante</option>
-                    <option value="vehiculo" {% if filter_type == 'vehiculo' %}selected{% endif %}>Vehículo</option>
-                    <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
-                    <option value="usuario" {% if filter_type == 'usuario' %}selected{% endif %}>Usuario</option>
-                </select>
-            </div>
-            <div>
-                <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro (Opcional)</label>
-                <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300">
-            </div>
-            <div>
-                <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-                <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300" required>
-            </div>
-            <div>
-                <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-                <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300" required>
-            </div>
-        </div>
-        <div class="flex justify-end">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                Aplicar Filtros
-            </button>
-        </div>
-    </form>
+  <h2 class="text-xl font-semibold mb-4">Filtros de Auditoría</h2>
+  <form method="get" class="space-y-4" id="auditForm">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+              <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
+              <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
+                  <option value="visitante" {% if filter_type == 'visitante' %}selected{% endif %}>Visitante</option>
+                  <option value="vehiculo" {% if filter_type == 'vehiculo' %}selected{% endif %}>Vehículo</option>
+                  <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
+              </select>
+          </div>
+          <div>
+              <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro (Opcional)</label>
+              <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12">
+          </div>
+          <div>
+              <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+              <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
+          </div>
+          <div>
+              <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
+              <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
+          </div>
+      </div>
+      <div class="flex justify-end">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded text-lg">
+              Aplicar Filtros
+          </button>
+      </div>
+  </form>
 </div>
 
-{% if modelo %}
-<div class="bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-xl font-semibold mb-4">Resultados de Auditoría - {{ modelo }}</h2>
+<!-- Tabla de Resultados Filtrados -->
+
+
+
+
+<!-- Listado de Últimos 5 Registros -->
+{% if not modelo %}
+<div class="space-y-8">
+    <!-- Tabla de Visitantes -->
+    <h2 class="text-2xl font-bold">Resultados de Auditoría - Visitantes</h2>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <div class="overflow-x-auto">
         <table class="w-full table-auto">
-            <thead class="bg-gray-50">
-                <tr>
-                    {% for columna in columnas %}
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ columna }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for item in resultados %}
-                <tr>
-                    {% for valor in item.values %}
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ valor|default:"-" }}</td>
-                    {% endfor %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="{{ columnas|length }}" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de auditoría.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">RUN</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Apellidos</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número de Tarjeta</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dirección</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motivo de Visita</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observaciones</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Entrada</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Salida</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for visitante in visitantes %}
+              <tr>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.run }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.nombre }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.apellidos }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.numero_tarjeta }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.direccion }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.motivo_visita }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.observaciones }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.hora_entrada }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.hora_salida }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="9" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de visitantes.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
+        <!-- Paginación para Visitantes -->
+        <div class="mt-4">
+          <div class="flex justify-center">
+              {% if visitantes.has_previous %}
+                  <a href="?visitantes_page=1" class="mx-1">Primero</a>
+                  <a href="?visitantes_page={{ visitantes.previous_page_number }}" class="mx-1">Anterior</a>
+              {% endif %}
+              <span class="mx-2">Página {{ visitantes.number }} de {{ visitantes.paginator.num_pages }}</span>
+              {% if visitantes.has_next %}
+                  <a href="?visitantes_page={{ visitantes.next_page_number }}" class="mx-1">Siguiente</a>
+                  <a href="?visitantes_page={{ visitantes.paginator.num_pages }}" class="mx-1">Último</a>
+              {% endif %}
+          </div>
+      </div>
+      </div>
     </div>
+
+    <!-- Tabla Vehículos  -->
+    <h2 class="text-2xl font-bold">Resultados de Auditoría - Vehículos</h2>
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matrícula</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Vehículo</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre del Conductor</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kilometraje de Salida</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destino</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número de Personas</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Salida</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Llegada</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for vehiculo in vehiculos %}
+              <tr>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.matricula }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.tipo_vehiculo }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.nombre_conductor }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.kilometraje_salida }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.destino }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.numero_personas }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.hora_salida }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.hora_llegada }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de vehículos.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <!-- Paginación para Vehículos -->
+        <div class="mt-4">
+          <div class="flex justify-center">
+              {% if vehiculos.has_previous %}
+                  <a href="?vehiculos_page=1" class="mx-1">Primero</a>
+                  <a href="?vehiculos_page={{ vehiculos.previous_page_number }}" class="mx-1">Anterior</a>
+              {% endif %}
+              <span class="mx-2">Página {{ vehiculos.number }} de {{ vehiculos.paginator.num_pages }}</span>
+              {% if vehiculos.has_next %}
+                  <a href="?vehiculos_page={{ vehiculos.next_page_number }}" class="mx-1">Siguiente</a>
+                  <a href="?vehiculos_page={{ vehiculos.paginator.num_pages }}" class="mx-1">Último</a>
+              {% endif %}
+          </div>
+      </div>
+      </div>
+    </div>
+
+     <!-- Tabla Proveedores -->
+     <h2 class="text-2xl font-bold">Resultados de Auditoría - Proveedor</h2>
+     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+     <div class="overflow-x-auto">
+        <table class="w-full table-auto">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">RUN</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre del Conductor</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre de la Empresa</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Domicilio</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo de Vehículo</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matrícula</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Guía de Despacho</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Encargado de Recepción</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Ingreso</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora de Salida</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for proveedor in proveedores %}
+              <tr>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.run }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.nombre_conductor }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.nombre_empresa }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.domicilio }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.tipo_vehiculo }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.matricula }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.guia_despacho }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.encargado_recepcion }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.hora_ingreso }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.hora_salida }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="10" class="px-6 py-4 text-center text-gray-500">No se encontraron registros de proveedores.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <!-- Paginación para Proveedores -->
+        <div class="mt-4">
+          <div class="flex justify-center">
+              {% if proveedores.has_previous %}
+                  <a href="?proveedores_page=1" class="mx-1">Primero</a>
+                  <a href="?proveedores_page={{ proveedores.previous_page_number }}" class="mx-1">Anterior</a>
+              {% endif %}
+              <span class="mx-2">Página {{ proveedores.number }} de {{ proveedores.paginator.num_pages }}</span>
+              {% if proveedores.has_next %}
+                  <a href="?proveedores_page={{ proveedores.next_page_number }}" class="mx-1">Siguiente</a>
+                  <a href="?proveedores_page={{ proveedores.paginator.num_pages }}" class="mx-1">Último</a>
+              {% endif %}
+          </div>
+      </div>
+      </div>
+     </div>
 </div>
 {% endif %}
 
@@ -73,7 +217,7 @@
     <button onclick="exportarPDF()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
         Exportar a PDF
     </button>
-    <button onclick="imprimirReporte()" class="bg-yellow-500 hover:bg-yellow- 600 text-white font-bold py-2 px-4 rounded">
+    <button onclick="imprimirReporte()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
         Imprimir Reporte
     </button>
 </div>
@@ -87,5 +231,4 @@ function imprimirReporte() {
     window.print();
 }
 </script>
-
 {% endblock %}

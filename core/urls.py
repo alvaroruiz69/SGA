@@ -33,5 +33,6 @@ urlpatterns = [
     path('gestion_permisos/', views.gestion_permisos, name='gestion_permisos'),
     path('editar_usuario/<int:user_id>/',
          views.editar_usuario, name='editar_usuario'),
+    path('logout/', views.custom_logout, name='logout'),
 
 ]

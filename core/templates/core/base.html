@@ -11,7 +11,7 @@
     </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'core/styles.css' %}" /> <!-- Enlace a tu archivo CSS -->
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}" /> <!-- archivo CSS -->
   </head>
   <body class="bg-gray-50">
     {% if user.is_authenticated %}
@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto px-4">
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center space-x-8">
-              <a href="{% url 'home' %}" class="text-xl font-bold">SGA</a>
+              <a href="{% url 'home' %}" class="text-xl font-bold hover:text-white">SGA</a>
               <div class="hidden md:flex space-x-8">
                 <a href="{% url 'registro_visitantes' %}" class="hover:text-gray-200">Visitantes</a>
                 <a href="{% url 'registro_vehiculos' %}" class="hover:text-gray-200">Vehículos</a>
@@ -55,30 +55,21 @@
                 
 
 
-
-                bg-green-100 text-green-700
-
-
+              bg-green-100 text-green-700
 
 
               {% elif message.tags == 'error' %}
                 
 
 
-
-                bg-red-100 text-red-700
-
+              bg-red-100 text-red-700
 
 
 
               {% else %}
                 
 
-
-
-                bg-blue-100 text-blue-700
-
-
+                 bg-blue-100 text-blue-700
 
 
               {% endif %}">{{ message }}</div>
@@ -113,7 +104,6 @@
       const notificationButton = document.getElementById('notification-button')
       if (notificationButton) {
         notificationButton.addEventListener('click', function () {
-          // Aquí puedes agregar la lógica para mostrar las notificaciones
           console.log('Notificaciones clicked')
         })
       }

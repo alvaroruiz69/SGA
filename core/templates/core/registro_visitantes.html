@@ -35,7 +35,7 @@
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="tarjetaError" class="text-red-500 text-xs italic hidden">Ingrese solo números.</p>
                 </div>
-                <div class="md:col-span-2">
+                <div>
                     <label for="direccion" class="block text-sm font-medium text-gray-700">Dirección</label>
                     <input type="text" id="direccion" name="direccion" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
@@ -43,13 +43,15 @@
                 </div>
                 <div>
                     <label for="motivo_visita" class="block text-sm font-medium text-gray-700">Motivo de Visita</label>
-                    <input id="motivo_visita" name="motivo_visita" required
+                    <input type="text" id="motivo_visita" name="motivo_visita" required
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="motivoError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
                 </div>
-                <div>
+
+                <!-- Observaciones ocupando toda la línea inferior -->
+                <div class="md:col-span-2">
                     <label for="observaciones" class="block text-sm font-medium text-gray-700">Observaciones</label>
-                    <input id="observaciones" name="observaciones"
+                    <input type="text" id="observaciones" name="observaciones"
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <p id="observacionesError" class="text-red-500 text-xs italic hidden">Solo ingrese letras y números.</p>
                 </div>

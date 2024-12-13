@@ -7,20 +7,26 @@
     <h2 class="text-xl font-semibold mb-4">Agregar Usuario</h2>
     <form method="post" class="space-y-4">
         {% csrf_token %}
-        <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
-            <input type="text" name="username" id="username" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ selected_user.username|default:'' }}" />
-        </div>
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-            <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-        </div>
-        <div>
-            <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Permiso</label>
-            <select name="role" id="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                <option value="Seguridad" {% if selected_user.groups.all.0.name == 'Seguridad' %}selected{% endif %}>Seguridad</option>
-                <option value="Auditor" {% if selected_user.groups.all.0.name == 'Auditor' %}selected{% endif %}>Auditor</option>
-            </select>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                <input type="text" name="username" id="username" required
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
+                       value="{{ selected_user.username|default:'' }}" />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <input type="password" name="password" id="password"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" />
+            </div>
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Permiso</label>
+                <select name="role" id="role"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12">
+                    <option value="Seguridad" {% if selected_user.groups.all.0.name == 'Seguridad' %}selected{% endif %}>Seguridad</option>
+                    <option value="Auditor" {% if selected_user.groups.all.0.name == 'Auditor' %}selected{% endif %}>Auditor</option>
+                </select>
+            </div>
         </div>
         <div class="flex justify-end">
             <button type="submit" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded">Guardar Usuario</button>

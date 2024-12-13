@@ -8,7 +8,7 @@ from datetime import datetime
 
 import weasyprint
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
@@ -23,11 +23,33 @@ from weasyprint import CSS, HTML
 
 from core.models import Proveedor, Vehiculo, Visitante
 
-from .models import Proveedor, Vehiculo, Visitante
-
 #
 # Validación del general usuarios del sistema
 #
+
+
+# Función para verificar si el usuario es del grupo Seguridad o Admin
+def is_security(user):
+    return user.groups.filter(name='Seguridad').exists() or user.is_superuser or user.groups.filter(name='Admin').exists()
+
+# Función para verificar si el usuario es del grupo Auditor o Admin
+
+
+def is_auditor(user):
+    return user.groups.filter(name='Auditor').exists() or user.groups.filter(name='Admin').exists() or user.is_superuser
+
+# Función para manejar accesos no permitidos
+
+
+def unauthorized_access(request):
+    messages.error(request, "Usted no tiene permitido el acceso.")
+    return redirect('logout')
+
+
+def custom_logout(request):
+    messages.error(request, "Usted no tiene permitido el acceso.")
+    logout(request)
+    return redirect('login')
 
 
 def login_view(request):
@@ -93,6 +115,7 @@ def calcular_dv(run):
 #
 
 @login_required
+@user_passes_test(is_security, login_url='logout')
 def registro_visitantes(request):
     """
     Maneja el registro de visitantes con registro en la auditoría.
@@ -173,26 +196,8 @@ def registro_visitantes(request):
     return render(request, "core/registro_visitantes.html", {"visitantes": visitantes})
 
 
-def calcular_dv(run):
-    """
-    Calcula el dígito verificador para un RUN dado.
-    """
-    suma = 0
-    factor = 2
-
-    for digito in reversed(run):
-        suma += int(digito) * factor
-        factor = 9 if factor == 7 else factor + 1
-
-    resto = 11 - (suma % 11)
-    if resto == 11:
-        return "0"
-    if resto == 10:
-        return "K"
-    return str(resto)
-
-
 @login_required
+@user_passes_test(is_security, login_url='logout')
 def get_visitor_data(request):
     """
     Recupera datos del visitante por RUN.
@@ -213,6 +218,7 @@ def get_visitor_data(request):
 
 
 @login_required
+@user_passes_test(is_security, login_url='logout')
 def registrar_salida_visitante(request, visitante_id):
     """
     Maneja el registro de salida visitantes.
@@ -230,6 +236,7 @@ def registrar_salida_visitante(request, visitante_id):
 #
 
 @login_required
+@user_passes_test(is_security, login_url='logout')
 def registro_vehiculos(request):
     """
     Maneja el registro de vehículos.
@@ -305,6 +312,7 @@ def registro_vehiculos(request):
 
 
 @ login_required
+@user_passes_test(is_security, login_url='logout')
 def registrar_llegada_vehiculo(request, vehiculo_id):
     """
     Maneja el registro de llegada de vehículos.
@@ -338,6 +346,7 @@ def registrar_llegada_vehiculo(request, vehiculo_id):
 
 
 @ login_required
+@user_passes_test(is_security, login_url='logout')
 def get_vehicle_data(request):
     """
     Maneja la búsqueda de vehículos por matrícula.
@@ -363,6 +372,7 @@ def get_vehicle_data(request):
 
 
 @ login_required
+@user_passes_test(is_security, login_url='logout')
 def registro_proveedores(request):
     """
     Maneja el registro de proveedores con validación de RUN, autocompletado de datos y generación automática de guion.
@@ -468,6 +478,7 @@ def registro_proveedores(request):
 
 
 @ login_required
+@user_passes_test(is_security, login_url='logout')
 def get_provider_data(request):
     """
     Endpoint para buscar datos de un proveedor por RUN.
@@ -492,6 +503,7 @@ def get_provider_data(request):
 
 
 @ login_required
+@user_passes_test(is_security, login_url='logout')
 def registrar_salida_proveedor(request, proveedor_id):
     """
     Maneja el registro de salida de proveedores.
@@ -508,87 +520,72 @@ def registrar_salida_proveedor(request, proveedor_id):
 # Gestion de auditorias del sistema
 #
 
+
 @login_required
+@user_passes_test(is_auditor, login_url='logout')
 def auditoria(request):
-    filter_type = request.GET.get("filter_type")
-    filter_value = request.GET.get("filter_value", "").strip()
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
+    filter_type = request.GET.get('filter_type')
+    filter_value = request.GET.get('filter_value')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
 
-    resultados = []
-    columnas = []
-    modelo = ""
+    visitantes, vehiculos, proveedores = [], [], []
 
-    if start_date and end_date:
-        if filter_type == "visitante":
-            queryset = Visitante.objects.filter(
-                hora_entrada__date__range=[start_date, end_date]
-            )
-            if filter_value:
-                queryset = queryset.filter(run__icontains=filter_value)
-            columnas = ["RUN", "Nombre", "Apellidos", "Número de Tarjeta", "Dirección",
-                        "Motivo de Visita", "Observaciones", "Hora de Entrada", "Hora de Salida"]
-            modelo = "Visitantes"
-            resultados = list(queryset.values(
-                'run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
-                'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida'
-            ))
+    # Si no se aplica ningún filtro, obtener los últimos 5 registros para cada tabla
+    if not filter_type:
+        visitantes = Visitante.objects.all().order_by('-hora_entrada')
+        vehiculos = Vehiculo.objects.all().order_by('-hora_salida')
+        proveedores = Proveedor.objects.all().order_by('-hora_ingreso')
+    else:
+        if start_date and end_date:
+            start_date = timezone.datetime.strptime(start_date, "%Y-%m-%d")
+            end_date = timezone.datetime.strptime(end_date, "%Y-%m-%d")
 
-        elif filter_type == "vehiculo":
-            queryset = Vehiculo.objects.filter(
-                hora_salida__date__range=[start_date, end_date]
-            )
-            if filter_value:
-                queryset = queryset.filter(matricula__icontains=filter_value)
-            columnas = ["Matrícula", "Tipo de Vehículo", "Nombre del Conductor", "Kilometraje de Salida",
-                        "Destino", "Número de Personas", "Hora de Salida", "Hora de Llegada"]
-            modelo = "Vehículos"
-            resultados = list(queryset.values(
-                'matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
-                'destino', 'numero_personas', 'hora_salida', 'hora_llegada'
-            ))
+            if filter_type == 'visitante':
+                query = Q(hora_entrada__range=(start_date, end_date))
+                if filter_value:
+                    query &= Q(run__icontains=filter_value) | Q(
+                        nombre__icontains=filter_value)
+                visitantes = Visitante.objects.filter(
+                    query).order_by('-hora_entrada')
 
-        elif filter_type == "proveedor":
-            queryset = Proveedor.objects.filter(
-                hora_ingreso__date__range=[start_date, end_date]
-            )
-            if filter_value:
-                queryset = queryset.filter(Q(run__icontains=filter_value) | Q(
-                    nombre_empresa__icontains=filter_value))
-            columnas = ["RUN", "Nombre del Conductor", "Nombre de la Empresa", "Domicilio", "Tipo de Vehículo",
-                        "Matrícula", "Guía de Despacho", "Encargado de Recepción", "Hora de Ingreso", "Hora de Salida"]
-            modelo = "Proveedores"
-            resultados = list(queryset.values(
-                'run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
-                'tipo_vehiculo', 'matricula', 'guia_despacho',
-                'encargado_recepcion', 'hora_ingreso', 'hora_salida'
-            ))
+            elif filter_type == 'vehiculo':
+                query = Q(hora_salida__range=(start_date, end_date))
+                if filter_value:
+                    query &= Q(matricula__icontains=filter_value) | Q(
+                        nombre_conductor__icontains=filter_value)
+                vehiculos = Vehiculo.objects.filter(
+                    query).order_by('-hora_salida')
 
-        elif filter_type == "usuario":
-            queryset = User.objects.filter(
-                date_joined__date__range=[start_date, end_date]
-            )
-            if filter_value:
-                queryset = queryset.filter(username__icontains=filter_value)
-            columnas = ["Usuario", "Nombre Completo",
-                        "Email", "Fecha de Ingreso"]
-            modelo = "Usuarios"
-            resultados = list(queryset.values(
-                'username', 'first_name', 'last_name', 'email', 'date_joined'
-            ))
+            elif filter_type == 'proveedor':
+                query = Q(hora_ingreso__range=(start_date, end_date))
+                if filter_value:
+                    query &= Q(run__icontains=filter_value) | Q(
+                        nombre_conductor__icontains=filter_value)
+                proveedores = Proveedor.objects.filter(
+                    query).order_by('-hora_ingreso')
+
+    # Paginación para cada tabla
+    visitantes_paginator = Paginator(visitantes, 5)
+    vehiculos_paginator = Paginator(vehiculos, 5)
+    proveedores_paginator = Paginator(proveedores, 5)
+
+    visitantes_page = request.GET.get('visitantes_page')
+    vehiculos_page = request.GET.get('vehiculos_page')
+    proveedores_page = request.GET.get('proveedores_page')
 
     # Generar PDF si se solicita
     if "export_pdf" in request.GET:
         context = {
-            "resultados": resultados,
-            "columnas": columnas,
-            "modelo": modelo,
-            "filter_type": filter_type,
-            "filter_value": filter_value,
-            "start_date": start_date,
-            "end_date": end_date,
-            "user": request.user,
-            "now": timezone.now(),
+            'visitantes': visitantes,
+            'vehiculos': vehiculos,
+            'proveedores': proveedores,
+            'filter_type': filter_type,
+            'filter_value': filter_value,
+            'start_date': start_date,
+            'end_date': end_date,
+            'user': request.user,
+            'now': timezone.now(),
         }
         html_string = render_to_string("core/auditoria_pdf.html", context)
         response = HttpResponse(content_type="application/pdf")
@@ -618,36 +615,28 @@ def auditoria(request):
                 font-weight: bold;
             }
         """)
-
         HTML(string=html_string).write_pdf(response, stylesheets=[css])
         return response
 
     context = {
-        "resultados": resultados,
-        "columnas": columnas,
-        "modelo": modelo,
-        "filter_type": filter_type,
-        "filter_value": filter_value,
-        "start_date": start_date,
-        "end_date": end_date,
+        'visitantes': visitantes_paginator.get_page(visitantes_page),
+        'vehiculos': vehiculos_paginator.get_page(vehiculos_page),
+        'proveedores': proveedores_paginator.get_page(proveedores_page),
+        'filter_type': filter_type,
+        'filter_value': filter_value,
+        'start_date': start_date,
+        'end_date': end_date,
     }
-
-    return render(request, "core/auditoria.html", context)
+    return render(request, 'core/auditoria.html', context)
 
 
 #
 # Gestion de permisos usuarios del sistema
 #
 
-def is_auditor(user):
-    return user.groups.filter(name='Auditor').exists()
-
-
-def is_security_personnel(user):
-    return user.groups.filter(name='Seguridad').exists()
-
 
 @login_required
+@user_passes_test(is_auditor, login_url='logout')
 def gestion_permisos(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -698,6 +687,7 @@ def gestion_permisos(request):
 
 
 @login_required
+@user_passes_test(is_auditor, login_url='logout')
 def editar_usuario(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
