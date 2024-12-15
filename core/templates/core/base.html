@@ -31,9 +31,18 @@
             <div class="flex items-center space-x-4">
               <div class="relative">
                 <button id="user-menu" class="flex items-center space-x-2 focus:outline-none">
-                  <!-- <img src="{% static 'img/default-avatar.png' %}" alt="Avatar" class="w-8 h-8 rounded-full bg-white" /> -->
+                  {% if user.is_superuser or user.groups.all.0.name == 'Admin' %}
+                    <img src="{% static 'img/avatar_admin.png' %}" alt="Avatar Administrador" class="w-8 h-8 rounded-full bg-white" />
+                  {% elif user.groups.all.0.name == 'Auditor' %}
+                    <img src="{% static 'img/avatar_auditor.png' %}" alt="Avatar Auditor" class="w-8 h-8 rounded-full bg-white" />
+                  {% elif user.groups.all.0.name == 'Seguridad' %}
+                    <img src="{% static 'img/avatar_seguridad.png' %}" alt="Avatar Seguridad" class="w-8 h-8 rounded-full bg-white" />
+                  {% else %}
+                    <img src="{% static 'img/default-avatar.png' %}" alt="Avatar" class="w-8 h-8 rounded-full bg-white" />
+                  {% endif %}
                   <div class="hidden md:block">{{ user.username }}</div>
                 </button>
+
                 <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                   {% if user.is_staff %}
                     <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Panel de Administración</a>
@@ -55,21 +64,33 @@
                 
 
 
+
+
               bg-green-100 text-green-700
+
+
 
 
               {% elif message.tags == 'error' %}
                 
 
 
+
+
               bg-red-100 text-red-700
+
+
 
 
 
               {% else %}
                 
 
+
+
                  bg-blue-100 text-blue-700
+
+
 
 
               {% endif %}">{{ message }}</div>
