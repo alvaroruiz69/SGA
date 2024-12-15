@@ -18,6 +18,7 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 from django.utils import timezone
 from weasyprint import CSS, HTML
 
@@ -520,7 +521,6 @@ def registrar_salida_proveedor(request, proveedor_id):
 # Gestion de auditorias del sistema
 #
 
-
 @login_required
 @user_passes_test(is_auditor, login_url='logout')
 def auditoria(request):
@@ -533,9 +533,9 @@ def auditoria(request):
 
     # Si no se aplica ningún filtro, obtener los últimos 5 registros para cada tabla
     if not filter_type:
-        visitantes = Visitante.objects.all().order_by('-hora_entrada')
-        vehiculos = Vehiculo.objects.all().order_by('-hora_salida')
-        proveedores = Proveedor.objects.all().order_by('-hora_ingreso')
+        visitantes = Visitante.objects.all().order_by('-hora_entrada')[:5]
+        vehiculos = Vehiculo.objects.all().order_by('-hora_salida')[:5]
+        proveedores = Proveedor.objects.all().order_by('-hora_ingreso')[:5]
     else:
         if start_date and end_date:
             start_date = timezone.datetime.strptime(start_date, "%Y-%m-%d")
@@ -565,6 +565,50 @@ def auditoria(request):
                 proveedores = Proveedor.objects.filter(
                     query).order_by('-hora_ingreso')
 
+    # Exportar PDF si se solicita
+    if "export_pdf" in request.GET:
+        # Determinar los resultados y columnas en función del filtro aplicado
+        if filter_type == 'visitante':
+            resultados = visitantes.values('run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
+                                           'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida')
+            columnas = ['RUN', 'Nombre', 'Apellidos', 'Número de Tarjeta', 'Dirección',
+                        'Motivo de Visita', 'Observaciones', 'Hora de Entrada', 'Hora de Salida']
+        elif filter_type == 'vehiculo':
+            resultados = vehiculos.values('matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
+                                          'destino', 'numero_personas', 'hora_salida', 'hora_llegada')
+            columnas = ['Matrícula', 'Tipo de Vehículo', 'Nombre del Conductor', 'Kilometraje de Salida',
+                        'Destino', 'Número de Personas', 'Hora de Salida', 'Hora de Llegada']
+        elif filter_type == 'proveedor':
+            resultados = proveedores.values('run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
+                                            'tipo_vehiculo', 'matricula', 'guia_despacho',
+                                            'encargado_recepcion', 'hora_ingreso', 'hora_salida')
+            columnas = ['RUN', 'Nombre del Conductor', 'Nombre de la Empresa', 'Domicilio', 'Tipo de Vehículo',
+                        'Matrícula', 'Guía de Despacho', 'Encargado de Recepción', 'Hora de Ingreso', 'Hora de Salida']
+        else:
+            resultados = []
+            columnas = []
+        # Obtener URL absoluta del logo
+        logo_url = request.build_absolute_uri(static('img/logo1.webp'))
+        context = {
+            'resultados': resultados,
+            'columnas': columnas,
+            'filter_type': filter_type,
+            'filter_value': filter_value,
+            'start_date': start_date,
+            'end_date': end_date,
+            'user': request.user,
+            'now': timezone.now(),
+            'logo_url': logo_url,
+        }
+
+        # Renderizar HTML y generar PDF
+        html_string = render_to_string("core/auditoria_pdf.html", context)
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="reporte_auditoria.pdf"'
+
+        HTML(string=html_string).write_pdf(response)
+        return response
+
     # Paginación para cada tabla
     visitantes_paginator = Paginator(visitantes, 5)
     vehiculos_paginator = Paginator(vehiculos, 5)
@@ -573,50 +617,6 @@ def auditoria(request):
     visitantes_page = request.GET.get('visitantes_page')
     vehiculos_page = request.GET.get('vehiculos_page')
     proveedores_page = request.GET.get('proveedores_page')
-
-    # Generar PDF si se solicita
-    if "export_pdf" in request.GET:
-        context = {
-            'visitantes': visitantes,
-            'vehiculos': vehiculos,
-            'proveedores': proveedores,
-            'filter_type': filter_type,
-            'filter_value': filter_value,
-            'start_date': start_date,
-            'end_date': end_date,
-            'user': request.user,
-            'now': timezone.now(),
-        }
-        html_string = render_to_string("core/auditoria_pdf.html", context)
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = 'attachment; filename="reporte_auditoria.pdf"'
-
-        css = CSS(string="""
-            @page {
-                size: landscape;
-                margin: 10px;
-            }
-            body {
-                font-family: Arial, sans-serif;
-                font-size: 12px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-                font-size: 11px;
-            }
-            th {
-                background-color: #f8f9fa;
-                font-weight: bold;
-            }
-        """)
-        HTML(string=html_string).write_pdf(response, stylesheets=[css])
-        return response
 
     context = {
         'visitantes': visitantes_paginator.get_page(visitantes_page),
@@ -628,7 +628,6 @@ def auditoria(request):
         'end_date': end_date,
     }
     return render(request, 'core/auditoria.html', context)
-
 
 #
 # Gestion de permisos usuarios del sistema

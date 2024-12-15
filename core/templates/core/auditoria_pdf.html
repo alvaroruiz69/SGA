@@ -1,14 +1,58 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>Reporte de Auditoría</title>
+    <style>
+      @page {
+        size: landscape;
+        margin: 10px;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .header img {
+        width: 100px;
+        height: 100px;
+      }
+      .header div {
+        text-align: center;
+        flex: 1;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        font-size: 11px;
+      }
+      th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
     <div class="header">
-      <h1>Reporte de Auditoría</h1>
-      <p>Generado el: {{ now|date:'d/m/Y H:i:s' }}</p>
-      <p>Generado por: {{ user.username }}</p>
+      <img src="{{ logo_url }}" alt="Logo" />
+      <div>
+        <h1>Reporte de Auditoría</h1>
+        <p>Generado el: {{ now|date:'d/m/Y H:i:s' }}</p>
+        <p>Generado por usuario: {{ user.username }}</p>
+      </div>
     </div>
 
     <div>
@@ -18,10 +62,10 @@
       {% if start_date or end_date %}
         <p>
           Período:{% if start_date %}
-            Desde {{ start_date }}
+            Desde {{ start_date|date:'d/m/Y' }}
           {% endif %}
           {% if end_date %}
-            Hasta {{ end_date }}
+            Hasta {{ end_date|date:'d/m/Y' }}
           {% endif %}
         </p>
       {% else %}

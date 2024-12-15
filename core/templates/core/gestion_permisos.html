@@ -10,15 +10,35 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
-                <input type="text" name="username" id="username" required
+                <input type="text" name="username" placeholder="nombre.apellido.apellido" id="username" required
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12"
                        value="{{ selected_user.username|default:'' }}" />
             </div>
-            <div>
+            <div class="relative">
                 <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                <input type="password" name="password" id="password"
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" />
-            </div>
+                <input type="password" name="password" id="password" required
+                       placeholder="10-12 caracteres, mayúsculas, minúsculas, número, símbolo"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12 pr-10" />
+
+                <!-- Icono de Ojo -->
+                <button type="button" id="togglePassword" class="absolute inset-y-0 right-3 pr-3 flex items-center text-gray-400">
+                  <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 3C5 3 1 8 1 8s4 5 9 5 9-5 9-5-4-5-9-5zm0 9a4 4 0 110-8 4 4 0 010 8zm0-7a3 3 0 100 6 3 3 0 000-6z"/>
+                  </svg>
+                </button>
+
+                <div id="password-requirements" class="mt-2 text-sm text-gray-700">
+                  <ul>
+                    <li id="length" class="invalid">✔️ Entre 10 y 12 caracteres</li>
+                    <li id="uppercase" class="invalid">✔️ Al menos una mayúscula</li>
+                    <li id="lowercase" class="invalid">✔️ Al menos una minúscula</li>
+                    <li id="number" class="invalid">✔️ Al menos un número</li>
+                    <li id="special" class="invalid">✔️ Al menos un carácter especial (!@#$%^&*(),.?":{}|<>)</li>
+                  </ul>
+                </div>
+              </div>
+
+
             <div>
                 <label for="role" class="block text-sm font-medium text-gray-700">Tipo de Permiso</label>
                 <select name="role" id="role"
@@ -46,8 +66,8 @@
     <tbody class="bg-white divide-y divide-gray-200">
         {% for user in page_obj %}
         <tr>
-            <td class="px-6 py-4 whitespace-nowrap">{{ user.username }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ user.groups.all|join:", " }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.username }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.groups.all|join:", " }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <a href="{% url 'editar_usuario' user.id %}" class="bg-orange-500 text-white font-bold py-2 px-4 rounded">Editar</a>
             </td>
@@ -67,4 +87,64 @@
         {% endif %}
     </div>
 </div>
+<style>
+    #password-requirements ul li {
+      list-style: none;
+    }
+
+    #password-requirements .valid {
+      color: green;
+    }
+
+    #password-requirements .invalid {
+      color: red;
+    }
+    .relative {
+        position: relative;
+      }
+      #togglePassword {
+        background: none;
+        border: none;
+        cursor: pointer;
+        outline: none;
+      }
+      #eyeIcon {
+        pointer-events: none;
+      }
+  </style>
+<!-- Script para validación dinámica de contraseña -->
+<script>
+document.getElementById('password').addEventListener('input', function () {
+  const password = this.value;
+
+  // Validación de longitud
+  document.getElementById('length').className = password.length >= 10 && password.length <= 12 ? 'valid' : 'invalid';
+
+  // Validación de mayúsculas
+  document.getElementById('uppercase').className = /[A-Z]/.test(password) ? 'valid' : 'invalid';
+
+  // Validación de minúsculas
+  document.getElementById('lowercase').className = /[a-z]/.test(password) ? 'valid' : 'invalid';
+
+  // Validación de números
+  document.getElementById('number').className = /\d/.test(password) ? 'valid' : 'invalid';
+
+  // Validación de caracteres especiales
+  document.getElementById('special').className = /[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'valid' : 'invalid';
+});
+
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.innerHTML = '<path d="M10 3C5 3 1 8 1 8s4 5 9 5 9-5 9-5-4-5-9-5zm0 9a4 4 0 110-8 4 4 0 010 8zm0-7a3 3 0 100 6 3 3 0 000-6z"/>';
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.innerHTML = '<path d="M10 3C5 3 1 8 1 8s4 5 9 5 9-5 9-5-4-5-9-5zm0 9a4 4 0 110-8 4 4 0 010 8zm0-7a3 3 0 100 6 3 3 0 000-6z"/>';
+    }
+  });
+</script>
+
 {% endblock %}

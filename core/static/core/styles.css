@@ -186,25 +186,7 @@ th {
     }
 }
 
-/* Estilos para el PDF de auditoría */
-body {
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-}
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    font-size: 11px;
-    /* Tamaño de letra para el PDF */
-}
 
 /* Margen y espaciado general */
 .container {
@@ -306,4 +288,21 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     tbody {
         display: table-row-group;
     }
+}
+
+#password-requirements ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#password-requirements li {
+    margin: 5px 0;
+}
+
+#password-requirements .valid {
+    color: green;
+}
+
+#password-requirements .invalid {
+    color: red;
 }

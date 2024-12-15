@@ -8,33 +8,33 @@
 <div class="bg-white p-6 rounded-lg shadow-md mb-8">
   <h2 class="text-xl font-semibold mb-4">Filtros de Auditoría</h2>
   <form method="get" class="space-y-4" id="auditForm">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div>
-              <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
-              <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
-                  <option value="visitante" {% if filter_type == 'visitante' %}selected{% endif %}>Visitante</option>
-                  <option value="vehiculo" {% if filter_type == 'vehiculo' %}selected{% endif %}>Vehículo</option>
-                  <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
-              </select>
-          </div>
-          <div>
-              <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro (Opcional)</label>
-              <input type="text" name="filter_value" id="filter_value" value="{{ filter_value }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12">
-          </div>
-          <div>
-              <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
-              <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
-          </div>
-          <div>
-              <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
-              <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
-          </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div>
+        <label for="filter_type" class="block text-sm font-medium text-gray-700">Tipo de Filtro</label>
+        <select name="filter_type" id="filter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
+          <option value="visitante" {% if filter_type == 'visitante' %}selected{% endif %}>Visitante</option>
+          <option value="vehiculo" {% if filter_type == 'vehiculo' %}selected{% endif %}>Vehículo</option>
+          <option value="proveedor" {% if filter_type == 'proveedor' %}selected{% endif %}>Proveedor</option>
+        </select>
       </div>
-      <div class="flex justify-end">
-          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded text-lg">
-              Aplicar Filtros
-          </button>
+      <div>
+        <label for="filter_value" class="block text-sm font-medium text-gray-700">Valor del Filtro (Opcional)</label>
+        <input type="text" name="filter_value" id="filter_value" placeholder="Ingrese un valor" value="{{ filter_value|default:'' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12">
+ </div>
+      <div>
+        <label for="start_date" class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+        <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
       </div>
+      <div>
+        <label for="end_date" class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
+        <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm h-12" required>
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded text-lg">
+        Aplicar Filtros
+      </button>
+    </div>
   </form>
 </div>
 
@@ -47,10 +47,11 @@
 {% if not modelo %}
 <div class="space-y-8">
     <!-- Tabla de Visitantes -->
+    <div class="auditoria-section" id="visitantes-section">
     <h2 class="text-2xl font-bold">Resultados de Auditoría - Visitantes</h2>
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <div class="overflow-x-auto">
-        <table class="w-full table-auto">
+      <table class="w-full table-auto" id="visitantes-table">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">RUN</th>
@@ -67,7 +68,7 @@
           <tbody class="bg-white divide-y divide-gray-200">
             {% for visitante in visitantes %}
               <tr>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.run }}</td>
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ visitante.run }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.nombre }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.apellidos }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.numero_tarjeta }}</td>
@@ -100,12 +101,14 @@
       </div>
       </div>
     </div>
+    </div>
 
     <!-- Tabla Vehículos  -->
+    <div class="auditoria-section" id="vehiculos-section">
     <h2 class="text-2xl font-bold">Resultados de Auditoría - Vehículos</h2>
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
     <div class="overflow-x-auto">
-        <table class="w-full table-auto">
+      <table class="w-full table-auto" id="vehiculos-table">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matrícula</th>
@@ -121,7 +124,7 @@
           <tbody class="bg-white divide-y divide-gray-200">
             {% for vehiculo in vehiculos %}
               <tr>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.matricula }}</td>
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ vehiculo.matricula }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.tipo_vehiculo }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.nombre_conductor }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.kilometraje_salida }}</td>
@@ -153,12 +156,14 @@
       </div>
       </div>
     </div>
+    </div>
 
      <!-- Tabla Proveedores -->
+     <div class="auditoria-section" id="proveedores-section">
      <h2 class="text-2xl font-bold">Resultados de Auditoría - Proveedor</h2>
      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
      <div class="overflow-x-auto">
-        <table class="w-full table-auto">
+      <table class="w-full table-auto" id="proveedores-table">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-32">RUN</th>
@@ -176,7 +181,7 @@
           <tbody class="bg-white divide-y divide-gray-200">
             {% for proveedor in proveedores %}
               <tr>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.run }}</td>
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ proveedor.run }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.nombre_conductor }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.nombre_empresa }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.domicilio }}</td>
@@ -211,6 +216,7 @@
       </div>
      </div>
 </div>
+</div>
 {% endif %}
 
 <div class="mt-8 flex justify-end space-x-4">
@@ -223,12 +229,65 @@
 </div>
 
 <script>
-function exportarPDF() {
-    window.location.href = window.location.pathname + window.location.search + (window.location.search ? '&' : '?') + 'export_pdf=1';
-}
+  function exportarPDF() {
+      window.location.href = window.location.pathname + window.location.search + (window.location.search ? '&' : '?') + 'export_pdf=1';
+  }
 
-function imprimirReporte() {
-    window.print();
-}
-</script>
+  function imprimirReporte() {
+      window.print();
+  }
+
+  // Cambia el placeholder del campo filter_value dependiendo del tipo de filtro seleccionado
+  document.getElementById('filter_type').addEventListener('change', function() {
+      const filterValueInput = document.getElementById('filter_value');
+      const selectedType = this.value;
+
+      if (selectedType === 'visitante') {
+        filterValueInput.placeholder = 'Buscar por RUN o Nombre';
+      } else if (selectedType === 'vehiculo') {
+        filterValueInput.placeholder = 'Buscar por Matrícula o Conductor';
+      } else if (selectedType === 'proveedor') {
+        filterValueInput.placeholder = 'Buscar por RUN o Conductor';
+      } else {
+        filterValueInput.placeholder = 'Ingrese un valor';
+      }
+  });
+
+  // Limpiar los campos después de que la página se haya cargado si la URL tiene parámetros (señal de que se aplicó un filtro)
+  document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (urlParams.has('filter_type')) {
+          document.getElementById('filter_value').value = '';
+          document.getElementById('start_date').value = '';
+          document.getElementById('end_date').value = '';
+      }
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    function checkAndHideEmptyTables() {
+      const tables = [
+        { tableId: 'visitantes-table', sectionId: 'visitantes-section' },
+        { tableId: 'vehiculos-table', sectionId: 'vehiculos-section' },
+        { tableId: 'proveedores-table', sectionId: 'proveedores-section' },
+      ];
+
+      tables.forEach(({ tableId, sectionId }) => {
+        const table = document.getElementById(tableId);
+        const section = document.getElementById(sectionId);
+        // Verificar si la tabla tiene solo el encabezado o está vacía
+        const rows = table.querySelectorAll('tbody tr');
+        const hasData = Array.from(rows).some(row => !row.textContent.includes('No se encontraron registros'));
+
+        if (!hasData) {
+          section.style.display = 'none';
+        } else {
+          section.style.display = 'block';
+        }
+      });
+    }
+
+    checkAndHideEmptyTables();
+  });
+  </script>
+
 {% endblock %}
