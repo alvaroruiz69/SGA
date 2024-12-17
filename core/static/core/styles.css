@@ -133,6 +133,8 @@ nav a:hover {
 
 /* Estilos generales para tablas */
 table {
+    border: 1px solid #ddd;
+    padding: 8px;
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
@@ -146,6 +148,8 @@ table {
 /* Encabezados y celdas de tabla */
 th,
 td {
+    border: 1px solid #ddd;
+    padding: 8px;
     padding: 0.75rem;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;

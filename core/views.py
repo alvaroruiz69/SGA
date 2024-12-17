@@ -25,21 +25,21 @@ from weasyprint import CSS, HTML
 from core.models import Proveedor, Vehiculo, Visitante
 
 #
-# Validación del general usuarios del sistema
+# Validacion del general usuarios del sistema
 #
 
 
-# Función para verificar si el usuario es del grupo Seguridad o Admin
+# Funcion para verificar si el usuario es del grupo Seguridad o Admin
 def is_security(user):
     return user.groups.filter(name='Seguridad').exists() or user.is_superuser or user.groups.filter(name='Admin').exists()
 
-# Función para verificar si el usuario es del grupo Auditor o Admin
+# Funcion para verificar si el usuario es del grupo Auditor o Admin
 
 
 def is_auditor(user):
     return user.groups.filter(name='Auditor').exists() or user.groups.filter(name='Admin').exists() or user.is_superuser
 
-# Función para manejar accesos no permitidos
+# Funcion para manejar accesos no permitidos
 
 
 def unauthorized_access(request):
@@ -131,7 +131,7 @@ def registro_visitantes(request):
         motivo_visita = request.POST.get("motivo_visita", "").strip()
         observaciones = request.POST.get("observaciones", "").strip()
 
-        # Validación del RUN: calcular dígito verificador si no está
+        # Validacion del RUN: calcular dígito verificador si no esta
         if "-" not in run:
             cuerpo = run[:-1] if len(run) > 1 else run
             dv_calculado = calcular_dv(cuerpo)
@@ -178,7 +178,7 @@ def registro_visitantes(request):
             return redirect("registro_visitantes")
 
         # Guardar visitante
-        visitante = Visitante.objects.create(  # Ahora almacenamos la instancia en "visitante"
+        visitante = Visitante.objects.create(
             run=run,
             nombre=nombre,
             apellidos=apellidos,
@@ -250,7 +250,7 @@ def registro_vehiculos(request):
         destino = request.POST["destino"].strip()
         numero_personas = request.POST["numero_personas"].strip()
 
-        # Validación de campos
+        # Validacion de campos
         if len(matricula) > 6 or not re.match(r"^[A-Za-z0-9]+$", matricula):
             messages.error(
                 request, "Máximo 6 caracteres y solo letras y números."
@@ -287,9 +287,9 @@ def registro_vehiculos(request):
             )
             return redirect("registro_vehiculos")
 
-        # Guardar el vehículo
+        # Guardar el vehiculo
         try:
-            # Crear un nuevo vehículo y guardar la instancia
+            # Crear un nuevo vehiculo y guardar la instancia
             vehiculo = Vehiculo.objects.create(
                 matricula=matricula,
                 tipo_vehiculo=tipo_vehiculo,
@@ -307,7 +307,7 @@ def registro_vehiculos(request):
             )
         return redirect("registro_vehiculos")
 
-    # Obtener vehículos que no tienen una llegada registrada
+    # Obtener vehiculos que no tienen una llegada registrada
     vehiculos = Vehiculo.objects.filter(hora_llegada__isnull=True)
     return render(request, "core/registro_vehiculos.html", {"vehiculos": vehiculos})
 
@@ -356,7 +356,7 @@ def get_vehicle_data(request):
     vehiculo = Vehiculo.objects.filter(matricula=matricula).first()
 
     if vehiculo:
-        # Obtener el último kilometraje de llegada registrado para la matrícula
+        # Obtener el ultimo kilometraje de llegada registrado para la matrícula
         ultimo_kilometraje = vehiculo.kilometraje_llegada if vehiculo.kilometraje_llegada is not None else 0
 
         return JsonResponse({
@@ -382,7 +382,7 @@ def registro_proveedores(request):
         # Obtener y limpiar el RUN ingresado
         run = request.POST.get("run", "").strip()
 
-        # Generar guion y dígito verificador automáticamente si no están presentes
+        # Generar guion y dígito verificador automaticamente si no están presentes
         if "-" not in run:
             dv = calcular_dv(run)
             run = f"{run}-{dv}"
@@ -394,7 +394,7 @@ def registro_proveedores(request):
             messages.error(request, str(e))
             return redirect("registro_proveedores")
 
-        # Validar los demás campos
+        # Validar los demas campos
         nombre_conductor = request.POST["nombre_conductor"]
         nombre_empresa = request.POST["nombre_empresa"]
         domicilio = request.POST["domicilio"]
@@ -456,7 +456,7 @@ def registro_proveedores(request):
             messages.error(request, f"Error al registrar proveedor: {e}")
         return redirect("registro_proveedores")
 
-    # Manejo de la búsqueda de un proveedor existente (GET para autocompletar datos)
+    # Manejo de la busqueda de un proveedor existente (GET para autocompletar datos)
     if request.method == "GET" and "run" in request.GET:
         run = request.GET.get("run", "").strip()
         proveedor = Proveedor.objects.filter(run=run).first()
@@ -531,11 +531,11 @@ def auditoria(request):
 
     visitantes, vehiculos, proveedores = [], [], []
 
-    # Si no se aplica ningún filtro, obtener los últimos 5 registros para cada tabla
+    # Si no se aplica ningun filtro, obtener los ultimos 5 registros para cada tabla
     if not filter_type:
-        visitantes = Visitante.objects.all().order_by('-hora_entrada')[:5]
-        vehiculos = Vehiculo.objects.all().order_by('-hora_salida')[:5]
-        proveedores = Proveedor.objects.all().order_by('-hora_ingreso')[:5]
+        visitantes = Visitante.objects.all().order_by('-hora_entrada')
+        vehiculos = Vehiculo.objects.all().order_by('-hora_salida')
+        proveedores = Proveedor.objects.all().order_by('-hora_ingreso')
     else:
         if start_date and end_date:
             start_date = timezone.datetime.strptime(start_date, "%Y-%m-%d")
@@ -567,7 +567,7 @@ def auditoria(request):
 
     # Exportar PDF si se solicita
     if "export_pdf" in request.GET:
-        # Determinar los resultados y columnas en función del filtro aplicado
+        # Determinar los resultados y columnas en funcion del filtro aplicado
         if filter_type == 'visitante':
             resultados = visitantes.values('run', 'nombre', 'apellidos', 'numero_tarjeta', 'direccion',
                                            'motivo_visita', 'observaciones', 'hora_entrada', 'hora_salida')
@@ -609,7 +609,7 @@ def auditoria(request):
         HTML(string=html_string).write_pdf(response)
         return response
 
-    # Paginación para cada tabla
+    # Paginacion para cada tabla
     visitantes_paginator = Paginator(visitantes, 5)
     vehiculos_paginator = Paginator(vehiculos, 5)
     proveedores_paginator = Paginator(proveedores, 5)
@@ -676,7 +676,7 @@ def gestion_permisos(request):
 
     # Listar usuarios sin incluir el grupo Admin
     users = User.objects.exclude(groups__name='Admin')
-    paginator = Paginator(users, 10)  # Mostrar 10 usuarios por página
+    paginator = Paginator(users, 5)  # Mostrar 10 usuarios por pagina
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

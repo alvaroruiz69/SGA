@@ -38,10 +38,6 @@
   </form>
 </div>
 
-<!-- Tabla de Resultados Filtrados -->
-
-
-
 
 <!-- Listado de Últimos 5 Registros -->
 {% if not modelo %}
@@ -50,7 +46,7 @@
     <div class="auditoria-section" id="visitantes-section">
     <h2 class="text-2xl font-bold">Resultados de Auditoría - Visitantes</h2>
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <div class="overflow-x-auto">
+
       <table class="w-full table-auto" id="visitantes-table">
           <thead class="bg-gray-50">
             <tr>
@@ -71,7 +67,7 @@
                 <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ visitante.run }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.nombre }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.apellidos }}</td>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.numero_tarjeta }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 text-center">{{ visitante.numero_tarjeta }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.direccion }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.motivo_visita }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ visitante.observaciones }}</td>
@@ -86,20 +82,18 @@
           </tbody>
         </table>
         <!-- Paginación para Visitantes -->
-        <div class="mt-4">
-          <div class="flex justify-center">
-              {% if visitantes.has_previous %}
-                  <a href="?visitantes_page=1" class="mx-1">Primero</a>
-                  <a href="?visitantes_page={{ visitantes.previous_page_number }}" class="mx-1">Anterior</a>
-              {% endif %}
-              <span class="mx-2">Página {{ visitantes.number }} de {{ visitantes.paginator.num_pages }}</span>
-              {% if visitantes.has_next %}
-                  <a href="?visitantes_page={{ visitantes.next_page_number }}" class="mx-1">Siguiente</a>
-                  <a href="?visitantes_page={{ visitantes.paginator.num_pages }}" class="mx-1">Último</a>
-              {% endif %}
-          </div>
-      </div>
-      </div>
+        <div class="mt-4 flex items-center justify-center space-x-2">
+          {% if visitantes.has_previous %}
+              <a href="?visitantes_page=1" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Primero</a>
+              <a href="?visitantes_page={{ visitantes.previous_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Anterior</a>
+          {% endif %}
+          <span class="px-4 py-2 text-gray-700 bg-gray-100 rounded">Página {{ visitantes.number }} de {{ visitantes.paginator.num_pages }}</span>
+          {% if visitantes.has_next %}
+              <a href="?visitantes_page={{visitantes.next_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Siguiente</a>
+              <a href="?visitantes_page={{ visitantes.paginator.num_pages }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Último</a>
+          {% endif %}
+        </div>
+
     </div>
     </div>
 
@@ -107,7 +101,6 @@
     <div class="auditoria-section" id="vehiculos-section">
     <h2 class="text-2xl font-bold">Resultados de Auditoría - Vehículos</h2>
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-    <div class="overflow-x-auto">
       <table class="w-full table-auto" id="vehiculos-table">
           <thead class="bg-gray-50">
             <tr>
@@ -129,7 +122,7 @@
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.nombre_conductor }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.kilometraje_salida }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.destino }}</td>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.numero_personas }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 text-center">{{ vehiculo.numero_personas }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.hora_salida }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ vehiculo.hora_llegada }}</td>
               </tr>
@@ -141,19 +134,16 @@
           </tbody>
         </table>
         <!-- Paginación para Vehículos -->
-        <div class="mt-4">
-          <div class="flex justify-center">
+        <div class="mt-4 flex items-center justify-center space-x-2">
               {% if vehiculos.has_previous %}
-                  <a href="?vehiculos_page=1" class="mx-1">Primero</a>
-                  <a href="?vehiculos_page={{ vehiculos.previous_page_number }}" class="mx-1">Anterior</a>
+                  <a href="?vehiculos_page=1" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Primero</a>
+                  <a href="?vehiculos_page={{ vehiculos.previous_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Anterior</a>
               {% endif %}
-              <span class="mx-2">Página {{ vehiculos.number }} de {{ vehiculos.paginator.num_pages }}</span>
+              <span class="px-4 py-2 text-gray-700 bg-gray-100 rounded">Página {{ vehiculos.number }} de {{ vehiculos.paginator.num_pages }}</span>
               {% if vehiculos.has_next %}
-                  <a href="?vehiculos_page={{ vehiculos.next_page_number }}" class="mx-1">Siguiente</a>
-                  <a href="?vehiculos_page={{ vehiculos.paginator.num_pages }}" class="mx-1">Último</a>
+                  <a href="?vehiculos_page={{ vehiculos.next_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Siguiente</a>
+                  <a href="?vehiculos_page={{ vehiculos.paginator.num_pages }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Último</a>
               {% endif %}
-          </div>
-      </div>
       </div>
     </div>
     </div>
@@ -162,7 +152,6 @@
      <div class="auditoria-section" id="proveedores-section">
      <h2 class="text-2xl font-bold">Resultados de Auditoría - Proveedor</h2>
      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-     <div class="overflow-x-auto">
       <table class="w-full table-auto" id="proveedores-table">
           <thead class="bg-gray-50">
             <tr>
@@ -187,7 +176,7 @@
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.domicilio }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.tipo_vehiculo }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.matricula }}</td>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.guia_despacho }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 text-center">{{ proveedor.guia_despacho }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.encargado_recepcion }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.hora_ingreso }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ proveedor.hora_salida }}</td>
@@ -200,23 +189,20 @@
           </tbody>
         </table>
         <!-- Paginación para Proveedores -->
-        <div class="mt-4">
-          <div class="flex justify-center">
-              {% if proveedores.has_previous %}
-                  <a href="?proveedores_page=1" class="mx-1">Primero</a>
-                  <a href="?proveedores_page={{ proveedores.previous_page_number }}" class="mx-1">Anterior</a>
-              {% endif %}
-              <span class="mx-2">Página {{ proveedores.number }} de {{ proveedores.paginator.num_pages }}</span>
-              {% if proveedores.has_next %}
-                  <a href="?proveedores_page={{ proveedores.next_page_number }}" class="mx-1">Siguiente</a>
-                  <a href="?proveedores_page={{ proveedores.paginator.num_pages }}" class="mx-1">Último</a>
-              {% endif %}
-          </div>
+        <div class="mt-4 flex items-center justify-center space-x-2">
+          {% if proveedores.has_previous %}
+              <a href="?proveedores_page=1" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Primero</a>
+              <a href="?proveedores_page={{ proveedores.previous_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Anterior</a>
+          {% endif %}
+          <span class="px-4 py-2 text-gray-700 bg-gray-100 rounded">Página {{ proveedores.number }} de {{ proveedores.paginator.num_pages }}</span>
+          {% if proveedores.has_next %}
+              <a href="?proveedores_page={{ proveedores.next_page_number }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Siguiente</a>
+              <a href="?proveedores_page={{ proveedores.paginator.num_pages }}" class="px-3 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Último</a>
+          {% endif %}
+        </div>
       </div>
-      </div>
-     </div>
-</div>
-</div>
+    </div>
+  </div>
 {% endif %}
 
 <div class="mt-8 flex justify-end space-x-4">
