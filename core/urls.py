@@ -12,7 +12,7 @@ from .views import editar_usuario, gestion_permisos
 urlpatterns = [
     path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
-    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    # path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('registro-visitantes/', views.registro_visitantes,
          name='registro_visitantes'),
     path('registro-vehiculos/', views.registro_vehiculos,
@@ -34,5 +34,5 @@ urlpatterns = [
     path('editar_usuario/<int:user_id>/',
          views.editar_usuario, name='editar_usuario'),
     path('logout/', views.custom_logout, name='logout'),
-
+    path('unauthorized/', views.unauthorized_access, name='unauthorized_access'),
 ]

@@ -42,14 +42,23 @@ def is_auditor(user):
 # Funcion para manejar accesos no permitidos
 
 
-def unauthorized_access(request):
-    messages.error(request, "Usted no tiene permitido el acceso.")
-    return redirect('logout')
-
-
 def custom_logout(request):
-    messages.error(request, "Usted no tiene permitido el acceso.")
+    """
+    Cierra la sesión y muestra un mensaje de cierre exitoso.
+    """
     logout(request)
+    messages.success(
+        request, "Su sesión se ha cerrado correctamente. Gracias por utilizar el Sistema de Gestión de Accesos (SGA).")
+    return redirect('login')
+
+
+def unauthorized_access(request):
+    """
+    Cierra la sesión y muestra un mensaje de falta de privilegios.
+    """
+    logout(request)
+    messages.error(
+        request, "No cuenta con los privilegios para acceder. Solicite acceso al encargado de seguridad.")
     return redirect('login')
 
 
@@ -116,7 +125,7 @@ def calcular_dv(run):
 #
 
 @login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def registro_visitantes(request):
     """
     Maneja el registro de visitantes con registro en la auditoría.
@@ -198,7 +207,7 @@ def registro_visitantes(request):
 
 
 @login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def get_visitor_data(request):
     """
     Recupera datos del visitante por RUN.
@@ -237,7 +246,7 @@ def registrar_salida_visitante(request, visitante_id):
 #
 
 @login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def registro_vehiculos(request):
     """
     Maneja el registro de vehículos.
@@ -313,7 +322,7 @@ def registro_vehiculos(request):
 
 
 @ login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def registrar_llegada_vehiculo(request, vehiculo_id):
     """
     Maneja el registro de llegada de vehículos.
@@ -347,7 +356,7 @@ def registrar_llegada_vehiculo(request, vehiculo_id):
 
 
 @ login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def get_vehicle_data(request):
     """
     Maneja la búsqueda de vehículos por matrícula.
@@ -373,7 +382,7 @@ def get_vehicle_data(request):
 
 
 @ login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def registro_proveedores(request):
     """
     Maneja el registro de proveedores con validación de RUN, autocompletado de datos y generación automática de guion.
@@ -479,7 +488,7 @@ def registro_proveedores(request):
 
 
 @ login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def get_provider_data(request):
     """
     Endpoint para buscar datos de un proveedor por RUN.
@@ -504,7 +513,7 @@ def get_provider_data(request):
 
 
 @ login_required
-@user_passes_test(is_security, login_url='logout')
+@user_passes_test(is_security, login_url='unauthorized_access')
 def registrar_salida_proveedor(request, proveedor_id):
     """
     Maneja el registro de salida de proveedores.
@@ -522,7 +531,7 @@ def registrar_salida_proveedor(request, proveedor_id):
 #
 
 @login_required
-@user_passes_test(is_auditor, login_url='logout')
+@user_passes_test(is_auditor, login_url='unauthorized_access')
 def auditoria(request):
     filter_type = request.GET.get('filter_type')
     filter_value = request.GET.get('filter_value')
@@ -575,9 +584,9 @@ def auditoria(request):
                         'Motivo de Visita', 'Observaciones', 'Hora de Entrada', 'Hora de Salida']
         elif filter_type == 'vehiculo':
             resultados = vehiculos.values('matricula', 'tipo_vehiculo', 'nombre_conductor', 'kilometraje_salida',
-                                          'destino', 'numero_personas', 'hora_salida', 'hora_llegada')
+                                          'kilometraje_llegada', 'destino', 'numero_personas', 'hora_salida', 'hora_llegada')
             columnas = ['Matrícula', 'Tipo de Vehículo', 'Nombre del Conductor', 'Kilometraje de Salida',
-                        'Destino', 'Número de Personas', 'Hora de Salida', 'Hora de Llegada']
+                        'Kilometraje de Llegada', 'Destino', 'Número de Personas', 'Hora de Salida', 'Hora de Llegada']
         elif filter_type == 'proveedor':
             resultados = proveedores.values('run', 'nombre_conductor', 'nombre_empresa', 'domicilio',
                                             'tipo_vehiculo', 'matricula', 'guia_despacho',
@@ -588,7 +597,7 @@ def auditoria(request):
             resultados = []
             columnas = []
         # Obtener URL absoluta del logo
-        logo_url = request.build_absolute_uri(static('img/logo1.webp'))
+        logo_url = request.build_absolute_uri(static('img/logo_inicio.png'))
         context = {
             'resultados': resultados,
             'columnas': columnas,
@@ -635,7 +644,7 @@ def auditoria(request):
 
 
 @login_required
-@user_passes_test(is_auditor, login_url='logout')
+@user_passes_test(is_auditor, login_url='unauthorized_access')
 def gestion_permisos(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -686,7 +695,7 @@ def gestion_permisos(request):
 
 
 @login_required
-@user_passes_test(is_auditor, login_url='logout')
+@user_passes_test(is_auditor, login_url='unauthorized_access')
 def editar_usuario(request, user_id):
     user = get_object_or_404(User, id=user_id)
 

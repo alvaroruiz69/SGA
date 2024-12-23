@@ -74,9 +74,9 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RUN</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellidos</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número de Tarjeta</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Número de Tarjeta</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora de Entrada</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Acción</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -85,9 +85,9 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ visitante.run }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.nombre }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.apellidos }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.numero_tarjeta }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{{ visitante.numero_tarjeta }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ visitante.hora_entrada|date:"d-m-Y H:i:s" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
                         <form method="post" action="{% url 'registrar_salida_visitante' visitante.id %}">
                             {% csrf_token %}
                             <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Registrar Salida</button>
